@@ -1,6 +1,6 @@
 # cluExtIO
 
-[![Build Status](https://travis-ci.org/clucompany/cluExtIO.svg?branch=master)](https://travis-ci.org/clucompany/cluAtoi)
+[![Build Status](https://travis-ci.org/clucompany/cluExtIO.svg?branch=master)](https://travis-ci.org/clucompany/cluExtIO)
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![crates.io](http://meritbadge.herokuapp.com/cluextio)](https://crates.io/crates/cluextio)
 [![Documentation](https://docs.rs/cluextio/badge.svg)](https://docs.rs/cluextio)
