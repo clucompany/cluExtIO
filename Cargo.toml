@@ -4,7 +4,7 @@ version = "0.1.2"
 authors = ["Денис Котляров <#Ulin Project 18, denis2005991@gmail.com>"]
 repository = "https://github.com/clucompany/cluExtIO.git"
 
-keywords = ["extio", "cluextio", "extension_input_output", "clucompany"]
+keywords = ["extio", "cluextio", "extension_in_out", "clucompany"]
 categories = ["development-tools"]
 
 description = "Syntactic sugar extends I/O capabilities."
