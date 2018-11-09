@@ -7,7 +7,7 @@ use std::io::Write;
 use std::io;
 use std::fmt;
 
-pub struct UnionWrite<W: Write, W2: Write>(W,W2);
+pub struct UnionWrite<W: Write, W2: Write>(W, W2);
 
 impl<W: Write, W2: Write> UnionWrite<W, W2> {
 	#[inline]

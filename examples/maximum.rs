@@ -3,17 +3,21 @@ extern crate cluExtIO;
 use cluExtIO::UnionWriteConst;
 use cluExtIO::ExtWrite;
 use cluExtIO::MutexWrite;
+use cluExtIO::FlushLockWrite;
 use std::io::Write;
 use std::fs::File;
 
 pub fn main() {
      let out = {
           let std_out = std::io::stdout();
-          let file = MutexWrite::new(File::create("/tmp/file.out").unwrap());
+          
+          let file = FlushLockWrite::new(MutexWrite::new(File::create("/tmp/file.out").unwrap()));
           //Contains the implementation of ExtWrite. Safe for inter-thread space.
+          //+ Additional self-cleaning after destroying Lock
 
-          let file2 = MutexWrite::new(File::create("/tmp/file2.out").unwrap());
+          let file2 = FlushLockWrite::new(MutexWrite::new(File::create("/tmp/file2.out").unwrap()));
           //Contains the implementation of ExtWrite. Safe for inter-thread space.
+          //+ Additional self-cleaning after destroying Lock
           
           std_out.union(file).union(file2)
      }; //Combined `ExtWrite` with lock function. OUT_PIPE + FILE_PIPE(2) = UNION_SAFE_PIPE

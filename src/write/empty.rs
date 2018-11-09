@@ -6,8 +6,8 @@ use std::fmt;
 
 pub type GuardEmptyWrite = EmptyWrite;
 
-///An implementation of "Trait Write" that does nothing.
-#[derive(Debug, Clone)]
+///An implementation of `Trait Write` that does nothing.
+#[derive(Debug)]
 pub struct EmptyWrite;
 
 impl EmptyWrite {
@@ -44,6 +44,12 @@ impl Write for EmptyWrite {
      }
 }
 
+impl Clone for EmptyWrite {
+     #[inline(always)]
+     fn clone(&self) -> Self {
+          EmptyWrite
+     }
+}
 
 
 impl<'a> ExtWrite<'a> for EmptyWrite {    

@@ -1,13 +1,18 @@
 
+
+mod guard;
+mod write;
+pub use self::guard::*;
+pub use self::write::*;
+
 use write::ext_write::ExtWrite;
-use write::mutex_guard::GuardWrite;
 use std::sync::MutexGuard;
 use std::io::Write;
 use std::sync::Mutex;
 use std::io;
 use std::fmt;
 
-///Combining multiple 'Trait Write' into one common.
+///Combining multiple `Trait Write` into one common.
 #[derive(Debug)]
 pub struct MutexWrite<T: Write>(Mutex<T>);
 
@@ -51,6 +56,15 @@ impl<T: Write> Write for MutexWrite<T> {
           self._lock().write_fmt(fmt)
      }
 }
+
+impl<T: Write + Clone> Clone for MutexWrite<T> {
+     #[inline]
+     fn clone(&self) -> Self {
+          Self::new(self._lock().clone())
+     }
+}
+
+
 
 impl<'a, T: 'a + Write> ExtWrite<'a> for MutexWrite<T> {
      type Lock = GuardWrite<'a, T>;
