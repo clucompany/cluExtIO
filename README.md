@@ -9,11 +9,13 @@ Syntactic sugar extends I/O capabilities.
 
 
 # Capabilities:
-1. EmptyWrite - Empty 'Write' that does nothing.
-2. UnionWrite - Possibility to combine several 'Write' into one record.
+1. EmptyWrite - Empty "Write" that does nothing.
+2. UnionWrite - Possibility to combine several "Write" into one record.
 3. MutexWrite - Combining Mutex and Write for multi-threaded access.
 4. ExtWrite - The trait extends the capabilities of the standard Write, adds lock methods.
 5. FlushWrite - An implementation of "Trait Write", which calls the flush () method on drop. 
+6. FlushLockWrite - An implementation of "Trait Write" that calls the flush() method when removing a lock.
+7. NotChanWrite - Unchangeable "Trait Write".
 ...
 
 # Use
