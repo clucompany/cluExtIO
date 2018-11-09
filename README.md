@@ -136,8 +136,9 @@ Syntactic sugar extends I/O capabilities.
 
 
 
+
 # License
 
 Copyright 2018 #UlinProject Денис Котляров
 
-Licensed under the MIT License
+Licensed under the Apache License, Version 2.0
