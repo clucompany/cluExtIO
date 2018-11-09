@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/clucompany/cluExtIO.svg?branch=master)](https://travis-ci.org/clucompany/cluExtIO)
 [![Apache licensed](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
 [![crates.io](http://meritbadge.herokuapp.com/cluExtIO)](https://crates.io/crates/cluExtIO)
-[![Documentation](https://docs.rs/cluextio/badge.svg)](https://docs.rs/cluExtIO)
+[![Documentation](https://docs.rs/cluExtIO/badge.svg)](https://docs.rs/cluExtIO)
 
 Syntactic sugar extends I/O capabilities.
 
