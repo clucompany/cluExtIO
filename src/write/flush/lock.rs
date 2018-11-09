@@ -1,5 +1,5 @@
 
-use write::flush::FlushWrite;
+use write::flush::FlushDropWrite;
 use std::marker::PhantomData;
 use write::ext_write::ExtWrite;
 use std::io::Write;
@@ -40,11 +40,11 @@ impl<'a, T: ExtWrite<'a>> Write for FlushLockWrite<'a, T> {
 }
 
 impl<'a, T: ExtWrite<'a>> ExtWrite<'a> for FlushLockWrite<'a, T> {
-     type Lock = FlushWrite<T::Lock>;
+     type Lock = FlushDropWrite<T::Lock>;
 
      #[inline]
      fn lock(&'a self) -> Self::Lock {
-          FlushWrite::new(self.0.lock())
+          FlushDropWrite::new(self.0.lock())
      }
 }
 
