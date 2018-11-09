@@ -58,24 +58,23 @@ Syntactic sugar extends I/O capabilities.
 		use std::io::Write;
 
 		pub fn main() {
+				let out = std::io::stdout();
 
-				 let out = std::io::stdout();
+				my_function(&out, 0, "No eND:)").unwrap();
 
-				 my_function(&out, 0, "No eND:)").unwrap();
-
-				 out.lock_fn(|mut l| {
-							l.write(b"End.\n")
-				 }).unwrap();
+				out.lock_fn(|mut l| {
+						l.write(b"End.\n")
+				}).unwrap();
 		}
 
 		fn my_function<'a, W: ExtWrite<'a>>(raw_write: &'a W, n: usize, str: &'static str) -> Result<(), std::io::Error> {
-				 let mut lock = raw_write.lock();
+				let mut lock = raw_write.lock();
 
-				 lock.write_fmt(format_args!("#@{} {}\n", n, "Test"))?;
-				 lock.write_fmt(format_args!("#@{} {}\n", n+1, "MyString"))?;
-				 lock.write_fmt(format_args!("#@{} ~{}\n", n+2, str))?;
+				lock.write_fmt(format_args!("#@{} {}\n", n, "Test"))?;
+				lock.write_fmt(format_args!("#@{} {}\n", n+1, "MyString"))?;
+				lock.write_fmt(format_args!("#@{} ~{}\n", n+2, str))?;
 
-				 Ok( () )
+				Ok( () )
 		}
 
 3. Threads
@@ -96,34 +95,34 @@ Syntactic sugar extends I/O capabilities.
 
 		pub fn main() {
 				 let arc_out = Arc::new({       
-							let out = stdout();
+						let out = stdout();
 
-							let file = FlushLockWrite::new(MutexWrite::new(File::create("/tmp/file.out").unwrap()));
-							//Contains the implementation of ExtWrite. Safe for inter-thread space.
-							//+ Additional self-cleaning after destroying Lock
+						let file = FlushLockWrite::new(MutexWrite::new(File::create("/tmp/file.out").unwrap()));
+						//Contains the implementation of ExtWrite. Safe for inter-thread space.
+						//+ Additional self-cleaning after destroying Lock
 
-							let file2 = FlushLockWrite::new(MutexWrite::new(File::create("/tmp/file2.out").unwrap()));
-							//Contains the implementation of ExtWrite. Safe for inter-thread space.
-							//+ Additional self-cleaning after destroying Lock
+						let file2 = FlushLockWrite::new(MutexWrite::new(File::create("/tmp/file2.out").unwrap()));
+						//Contains the implementation of ExtWrite. Safe for inter-thread space.
+						//+ Additional self-cleaning after destroying Lock
 
-							out.union(file).union(file2)
+						out.union(file).union(file2)
 				 }); //Combined `ExtWrite` with lock function. OUT_PIPE + FILE_PIPE(2) = UNION_SAFE_PIPE
 
 
 				 let barrier = Arc::new(Barrier::new(5 + 1));
 
 				 for num_thread in 0..5 {
-							let barrier = barrier.clone();
-							let arc_out = arc_out.clone();
-							thread::spawn(move || {
+						let barrier = barrier.clone();
+						let arc_out = arc_out.clone();
+						thread::spawn(move || {
 
-									 arc_out.lock_fn(|mut lock| {
-												lock.write_fmt(format_args!("#@{} {}\n", num_thread, "Thread #OK")).unwrap();
-												lock.write_fmt(format_args!("#@{} {}\n", num_thread, "Thread #T")).unwrap();
-									 });
+								arc_out.lock_fn(|mut lock| {
+										lock.write_fmt(format_args!("#@{} {}\n", num_thread, "Thread #OK")).unwrap();
+										lock.write_fmt(format_args!("#@{} {}\n", num_thread, "Thread #T")).unwrap();
+								});
 
-									 barrier.wait();
-							});
+								barrier.wait();
+						});
 				 }
 
 				 barrier.wait();
