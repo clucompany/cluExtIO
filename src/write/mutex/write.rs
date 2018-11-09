@@ -13,7 +13,7 @@ pub trait NotChanWrite<'a> {
 }
 
 
-impl<'a, E: ExtWrite<'a> + 'a> NotChanWrite<'a> for E {
+impl<'a, E: ExtWrite<'a>> NotChanWrite<'a> for E {
      #[inline(always)]
      fn write(&'a self, buf: &[u8]) -> io::Result<usize> {
           self.lock().write(buf)
