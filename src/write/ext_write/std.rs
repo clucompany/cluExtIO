@@ -1,7 +1,8 @@
 
+use crate::write::ext_write::ExtWrite;
+
 use std::io::StderrLock;
 use std::io::Stderr;
-use write::ext_write::ExtWrite;
 use std::io::StdoutLock;
 use std::io::Stdout;
 

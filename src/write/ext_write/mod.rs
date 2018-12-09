@@ -1,8 +1,10 @@
 
+use ::std::io::Write;
+
+
 mod std;
 pub use self::std::*;
 
-use std::io::Write;
 
 
 ///The trait extends the capabilities of the standard Write.

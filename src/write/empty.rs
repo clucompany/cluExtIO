@@ -1,5 +1,6 @@
 
-use write::ext_write::ExtWrite;
+use crate::write::ext_write::ExtWrite;
+
 use std::io;
 use std::io::Write;
 use std::fmt;

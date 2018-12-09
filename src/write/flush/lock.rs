@@ -1,7 +1,8 @@
 
-use write::flush::FlushDropWrite;
+use crate::write::flush::FlushDropWrite;
+use crate::write::ext_write::ExtWrite;
+
 use std::marker::PhantomData;
-use write::ext_write::ExtWrite;
 use std::io::Write;
 use std::io;
 use std::fmt;

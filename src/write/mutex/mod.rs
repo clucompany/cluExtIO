@@ -1,11 +1,11 @@
 
+use crate::write::ext_write::ExtWrite;
 
 mod guard;
 mod write;
 pub use self::guard::*;
 pub use self::write::*;
 
-use write::ext_write::ExtWrite;
 use std::sync::MutexGuard;
 use std::io::Write;
 use std::sync::Mutex;
