@@ -53,3 +53,10 @@ impl<T: Write> Drop for FlushDropWrite<T> {
 	}
 }
 
+
+impl<T: 'static + Write> Into<Box<Write>> for FlushDropWrite<T> {
+     #[inline]
+     fn into(self) -> Box<Write> {
+          Box::new(self) as Box<Write>
+     }
+}

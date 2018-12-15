@@ -41,10 +41,10 @@ impl<'a, T: ExtWrite<'a>> Write for FlushLockWrite<'a, T> {
 }
 
 impl<'a, T: ExtWrite<'a>> ExtWrite<'a> for FlushLockWrite<'a, T> {
-     type Lock = FlushDropWrite<T::Lock>;
+     type LockWrite = FlushDropWrite<T::LockWrite>;
 
      #[inline]
-     fn lock(&'a self) -> Self::Lock {
+     fn lock(&'a self) -> Self::LockWrite {
           FlushDropWrite::new(self.0.lock())
      }
 }
@@ -53,5 +53,12 @@ impl<'a, T: ExtWrite<'a> + Clone> Clone for FlushLockWrite<'a, T> {
      #[inline]
      fn clone(&self) -> Self {
           Self::new(self.0.clone())
+     }
+}
+
+impl<'a, T: 'static +  ExtWrite<'static> + Clone> Into<Box<Write>> for FlushLockWrite<'static, T> {
+     #[inline]
+     fn into(self) -> Box<Write> {
+          Box::new(self) as Box<Write>
      }
 }

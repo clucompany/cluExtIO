@@ -12,11 +12,6 @@ impl<'a, T: Write> GuardWrite<'a, T> {
      pub fn guard(t: MutexGuard<'a, T>) -> Self {
           GuardWrite(t)
      }
-
-     #[inline]
-     pub fn boxed(t: MutexGuard<'a, T>) -> Box<Self> {
-          Box::new(Self::guard(t))
-     }
 }
 
 impl<'a, T: Write> Write for GuardWrite<'a, T> {
@@ -41,3 +36,9 @@ impl<'a, T: Write> Write for GuardWrite<'a, T> {
      }
 }
 
+impl<T: Write> Into<Box<Write>> for GuardWrite<'static, T> {
+     #[inline]
+     fn into(self) -> Box<Write> {
+          Box::new(self) as Box<Write>
+     }
+}

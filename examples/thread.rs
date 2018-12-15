@@ -5,7 +5,8 @@ use cluExtIO::UnionWriteConst;
 use cluExtIO::ExtWrite;
 use cluExtIO::MutexWrite;
 use cluExtIO::FlushLockWrite;
-use cluExtIO::NotChanWrite;
+use cluExtIO::ImMutWrite;
+
 use std::io::Write;
 use std::fs::File;
 use std::sync::Arc;

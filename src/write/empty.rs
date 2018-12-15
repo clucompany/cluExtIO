@@ -13,14 +13,9 @@ pub struct EmptyWrite;
 
 impl EmptyWrite {
 	#[inline]
-	pub fn new() -> Self {
+	pub const fn new() -> Self {
 		EmptyWrite
 	}
-
-     #[inline]
-     pub fn boxed() -> Box<Self> {
-          Box::new(Self::new())
-     }
 }
 
 impl Write for EmptyWrite {
@@ -52,11 +47,19 @@ impl Clone for EmptyWrite {
      }
 }
 
-
 impl<'a> ExtWrite<'a> for EmptyWrite {    
-     type Lock = GuardEmptyWrite; 
+     type LockWrite = GuardEmptyWrite; 
+
      #[inline]
-     fn lock(&self) -> Self::Lock {
+     fn lock(&self) -> Self::LockWrite {
           GuardEmptyWrite::new()
+     }
+}
+
+
+impl Into<Box<Write>> for EmptyWrite {
+     #[inline]
+     fn into(self) -> Box<Write> {
+          Box::new(self) as Box<Write>
      }
 }

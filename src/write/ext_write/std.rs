@@ -6,18 +6,20 @@ use std::io::Stderr;
 use std::io::StdoutLock;
 use std::io::Stdout;
 
-impl<'a> ExtWrite<'a> for Stdout {
-     type Lock = StdoutLock<'a>;
-     #[inline(always)]
-     fn lock(&'a self) -> Self::Lock {
+impl<'a> ExtWrite<'a> for Stdout {     
+     type LockWrite = StdoutLock<'a>;
+
+     #[inline]
+     fn lock(&'a self) -> Self::LockWrite {
           self.lock()
      }
 }
 
 impl<'a> ExtWrite<'a> for Stderr {
-     type Lock = StderrLock<'a>;
-     #[inline(always)]
-     fn lock(&'a self) -> Self::Lock {
+     type LockWrite = StderrLock<'a>;
+
+     #[inline]
+     fn lock(&'a self) -> Self::LockWrite {
           self.lock()
      }
 }

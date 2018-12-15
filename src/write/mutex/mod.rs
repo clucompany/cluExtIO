@@ -67,9 +67,18 @@ impl<T: Write + Clone> Clone for MutexWrite<T> {
 
 
 impl<'a, T: 'a + Write> ExtWrite<'a> for MutexWrite<T> {
-     type Lock = GuardWrite<'a, T>;
+     type LockWrite = GuardWrite<'a, T>;
+     
      #[inline]
-     fn lock(&'a self) -> Self::Lock {
+     fn lock(&'a self) -> Self::LockWrite {
           GuardWrite::guard(self._lock())
+     }
+}
+
+
+impl<T: 'static + Write> Into<Box<Write>> for MutexWrite<T> {
+     #[inline]
+     fn into(self) -> Box<Write> {
+          Box::new(self) as Box<Write>
      }
 }

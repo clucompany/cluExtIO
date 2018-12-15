@@ -1,5 +1,4 @@
 
-
 mod write;
 pub use self::write::*;
 
@@ -13,15 +12,4 @@ pub trait UnionWriteConst: Write {
      }
 }
 
-impl<T: Write + Sized> UnionWriteConst for T {}
-
-/* conflict:(
-impl<T: Write + Sized> Add for T {
-     type Output = UnionWrite<Self, T>;
-
-     #[inline]
-     fn add(self, b: Self) -> Self::Output {
-          UnionWrite::new(self, b)
-     }
-}
-*/
+impl<T: Write> UnionWriteConst for T {}
