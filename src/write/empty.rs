@@ -18,6 +18,14 @@ impl EmptyWrite {
 	}
 }
 
+impl From<()> for EmptyWrite {
+	#[inline(always)]
+	fn from(_a: ()) -> Self {
+		Self::new()
+	}
+}
+
+
 impl Write for EmptyWrite {
 	#[inline(always)]
 	fn write<'a>(&mut self, _buf: &'a [u8]) -> io::Result<usize> {

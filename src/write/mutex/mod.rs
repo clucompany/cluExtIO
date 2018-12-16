@@ -35,6 +35,20 @@ impl<T: Write> MutexWrite<T> {
      }
 }
 
+impl<T: Write> From<T> for MutexWrite<T> {
+	#[inline(always)]
+	fn from(a: T) -> Self {
+		Self::new(a)
+	}
+}
+
+impl<T: Write> From<Mutex<T>> for MutexWrite<T> {
+	#[inline(always)]
+	fn from(a: Mutex<T>) -> Self {
+		Self::mutex(a)
+	}
+}
+
 impl<T: Write> Write for MutexWrite<T> {
      #[inline(always)]
      fn write(&mut self, buf: &[u8]) -> io::Result<usize> {

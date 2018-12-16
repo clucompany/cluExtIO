@@ -13,3 +13,11 @@ pub trait UnionWriteConst: Write {
 }
 
 impl<T: Write> UnionWriteConst for T {}
+
+
+impl<A: Write, B: Write> From<(A, B)> for UnionWrite<A, B> {
+     #[inline(always)]
+     fn from((a, b): (A, B)) -> Self {
+          a.union(b)
+     }
+}

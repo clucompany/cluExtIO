@@ -14,6 +14,14 @@ impl<'a, T: Write> GuardWrite<'a, T> {
      }
 }
 
+impl<'a, T: Write> From<MutexGuard<'a, T>> for GuardWrite<'a, T> {
+	#[inline(always)]
+	fn from(a: MutexGuard<'a, T>) -> Self {
+		Self::guard(a)
+	}
+}
+
+
 impl<'a, T: Write> Write for GuardWrite<'a, T> {
      #[inline(always)]
      fn write(&mut self, buf: &[u8]) -> io::Result<usize> {

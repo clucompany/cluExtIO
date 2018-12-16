@@ -18,6 +18,14 @@ impl<'a, T: ExtWrite<'a>> FlushLockWrite<'a, T> {
 	}
 }
 
+impl<'a, T: ExtWrite<'a>> From<T> for FlushLockWrite<'a, T> {
+	#[inline]
+	fn from(a: T) -> Self {
+		FlushLockWrite::new(a)
+	}
+}
+
+
 impl<'a, T: ExtWrite<'a>> Write for FlushLockWrite<'a, T> {
 	#[inline(always)]
 	fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
@@ -53,12 +61,5 @@ impl<'a, T: ExtWrite<'a> + Clone> Clone for FlushLockWrite<'a, T> {
      #[inline]
      fn clone(&self) -> Self {
           Self::new(self.0.clone())
-     }
-}
-
-impl<'a, T: 'static +  ExtWrite<'static> + Clone> Into<Box<Write>> for FlushLockWrite<'static, T> {
-     #[inline]
-     fn into(self) -> Box<Write> {
-          Box::new(self) as Box<Write>
      }
 }

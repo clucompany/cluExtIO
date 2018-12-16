@@ -86,10 +86,9 @@ impl<'a, W: ExtWrite<'a>, W2: ExtWrite<'a>> ExtWrite<'a> for UnionWrite<W, W2> {
      }
 }
 
-
-impl<'a, W: 'static + ExtWrite<'a>, W2: 'static + ExtWrite<'a>> Into<Box<Write>> for UnionWrite<W, W2> {
-     #[inline]
+impl<'a, W: 'static + 'a + ExtWrite<'a>, W2: 'static + 'a + ExtWrite<'a>> Into<Box<Write + 'a>> for UnionWrite<W, W2> {
      fn into(self) -> Box<Write> {
-          Box::new(self) as Box<Write>
+          Box::new(self)
      }
 }
+
