@@ -39,7 +39,7 @@ impl<'a, 'l, L: ExtWrite<'a, LockWrite = W>, W: 'a + Write> ExtWrite<'a> for &'l
 }
 
 ///The trait extends the capabilities of the standard Write.
-impl<'a, 'l, L: ExtWrite<'a, LockWrite = W> + Write, W: 'a + Write> ExtWrite<'a> for &'l mut L {
+impl<'a, 'l, L: ExtWrite<'a, LockWrite = W> + Write, W: 'a + Write> ExtWrite<'a> for &'l mut L where Self: Write {
     type LockWrite = W;
 
     ///Blocking the output stream.

@@ -17,6 +17,15 @@ impl<T: Write> FlushDropWrite<T> {
 	pub fn flush(self) {}
 }
 
+
+impl<T: Write> From<T> for FlushDropWrite<T> {
+	#[inline(always)]
+	fn from(a: T) -> Self {
+		FlushDropWrite::new(a)
+	}
+}
+
+
 impl<T: Write> Write for FlushDropWrite<T> {
 	#[inline(always)]
 	fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
@@ -59,11 +68,4 @@ impl<T: 'static + Write> Into<Box<Write>> for FlushDropWrite<T> {
      fn into(self) -> Box<Write> {
           Box::new(self) as Box<Write>
      }
-}
-
-impl<T: Write> From<T> for FlushDropWrite<T> {
-	#[inline(always)]
-	fn from(a: T) -> Self {
-		FlushDropWrite::new(a)
-	}
 }

@@ -14,6 +14,13 @@ impl<W: Write, W2: Write> UnionWrite<W, W2> {
 		UnionWrite(out, out2)
 	}
 }
+/* << conflict
+impl<W: Write, W2: Write> From<(W, W2)> for UnionWrite<W, W2> {
+     #[inline]
+     fn from((a, b): (W, W2)) -> Self {
+          Self::new(a, b)
+     }
+}*/
 
 
 impl<W: Write, W2: Write> Debug for UnionWrite<W, W2> {
@@ -43,6 +50,7 @@ impl<W: Write, W2: Write> Write for UnionWrite<W, W2> {
      fn flush(&mut self) -> io::Result<()> {
           let e = self.0.flush();
           let e2 = self.1.flush();
+
 		if let Err(_) = e {
                return e;
           }
@@ -82,7 +90,7 @@ impl<'a, W: ExtWrite<'a>, W2: ExtWrite<'a>> ExtWrite<'a> for UnionWrite<W, W2> {
      type LockWrite = UnionWrite<W::LockWrite, W2::LockWrite>;
 
      fn lock(&'a self) -> Self::LockWrite {
-          UnionWrite::new(self.0.lock(), self.1.lock())
+          Self::LockWrite::new(self.0.lock(), self.1.lock())
      }
 }
 
