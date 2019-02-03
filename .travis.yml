@@ -6,7 +6,7 @@ rust:
   - nightly
 matrix:
   allow_failures:
-    - rust: nightly
+	- rust: nightly
 script:
   - cargo build --verbose
   - cargo test --lib --verbose

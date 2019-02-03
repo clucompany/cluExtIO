@@ -7,50 +7,50 @@ pub use self::std::*;
 
 ///The trait extends the capabilities of the standard Write.
 pub trait ExtWrite<'a>: Write {
-    type LockWrite: Write + 'a;
+	type LockWrite: Write + 'a;
 
-    ///Blocking the output stream.
-    fn lock(&'a self) -> Self::LockWrite;
+	///Blocking the output stream.
+	fn lock(&'a self) -> Self::LockWrite;
 
-    ///Alternative method of blocking the output stream using the closure.
-    #[inline(always)]
-    fn lock_fn<F: FnMut(Self::LockWrite) -> R, R>(&'a self, mut f: F) -> R {
-        f(self.lock())
-    }
+	///Alternative method of blocking the output stream using the closure.
+	#[inline(always)]
+	fn lock_fn<F: FnMut(Self::LockWrite) -> R, R>(&'a self, mut f: F) -> R {
+		f(self.lock())
+	}
 }
 
 
 ///The trait extends the capabilities of the standard Write.
 impl<'a, 'l, L: ExtWrite<'a, LockWrite = W>, W: 'a + Write> ExtWrite<'a> for &'l L where Self: Write {
-    type LockWrite = W;
+	type LockWrite = W;
 
-    
-    ///Blocking the output stream.
-    #[inline(always)]
-    fn lock(&'a self) -> Self::LockWrite {
-        L::lock(self)
-    }
+	
+	///Blocking the output stream.
+	#[inline(always)]
+	fn lock(&'a self) -> Self::LockWrite {
+		L::lock(self)
+	}
 
-    ///Alternative method of blocking the output stream using the closure.
-    #[inline(always)]
-    fn lock_fn<F: FnMut(Self::LockWrite) -> R, R>(&'a self, f: F) -> R {
-        L::lock_fn(self, f)
-    }
+	///Alternative method of blocking the output stream using the closure.
+	#[inline(always)]
+	fn lock_fn<F: FnMut(Self::LockWrite) -> R, R>(&'a self, f: F) -> R {
+		L::lock_fn(self, f)
+	}
 }
 
 ///The trait extends the capabilities of the standard Write.
 impl<'a, 'l, L: ExtWrite<'a, LockWrite = W> + Write, W: 'a + Write> ExtWrite<'a> for &'l mut L where Self: Write {
-    type LockWrite = W;
+	type LockWrite = W;
 
-    ///Blocking the output stream.
-    #[inline(always)]
-    fn lock(&'a self) -> Self::LockWrite {
-        L::lock(self)
-    }
+	///Blocking the output stream.
+	#[inline(always)]
+	fn lock(&'a self) -> Self::LockWrite {
+		L::lock(self)
+	}
 
-    ///Alternative method of blocking the output stream using the closure.
-    #[inline(always)]
-    fn lock_fn<F: FnMut(Self::LockWrite) -> R, R>(&'a self, f: F) -> R {
-        L::lock_fn(self, f)
-    }
+	///Alternative method of blocking the output stream using the closure.
+	#[inline(always)]
+	fn lock_fn<F: FnMut(Self::LockWrite) -> R, R>(&'a self, f: F) -> R {
+		L::lock_fn(self, f)
+	}
 }

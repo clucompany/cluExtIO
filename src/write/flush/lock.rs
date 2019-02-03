@@ -49,17 +49,17 @@ impl<'a, T: ExtWrite<'a>> Write for FlushLockWrite<'a, T> {
 }
 
 impl<'a, T: ExtWrite<'a>> ExtWrite<'a> for FlushLockWrite<'a, T> {
-     type LockWrite = FlushDropWrite<T::LockWrite>;
+	type LockWrite = FlushDropWrite<T::LockWrite>;
 
-     #[inline]
-     fn lock(&'a self) -> Self::LockWrite {
-          FlushDropWrite::new(self.0.lock())
-     }
+	#[inline]
+	fn lock(&'a self) -> Self::LockWrite {
+		FlushDropWrite::new(self.0.lock())
+	}
 }
 
 impl<'a, T: ExtWrite<'a> + Clone> Clone for FlushLockWrite<'a, T> {
-     #[inline]
-     fn clone(&self) -> Self {
-          Self::new(self.0.clone())
-     }
+	#[inline]
+	fn clone(&self) -> Self {
+		Self::new(self.0.clone())
+	}
 }

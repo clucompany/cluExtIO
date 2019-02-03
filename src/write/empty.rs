@@ -37,37 +37,37 @@ impl Write for EmptyWrite {
 		Ok( () )
 	}
 
-     #[inline(always)]
-     fn write_all<'a>(&mut self, _buf: &'a [u8]) -> io::Result<()> {
-          Ok( () )
-     }
+	#[inline(always)]
+	fn write_all<'a>(&mut self, _buf: &'a [u8]) -> io::Result<()> {
+		Ok( () )
+	}
 
-     #[inline(always)]
-     fn write_fmt(&mut self, _fmt: fmt::Arguments) -> io::Result<()> { 
-          Ok( () )
-     }
+	#[inline(always)]
+	fn write_fmt(&mut self, _fmt: fmt::Arguments) -> io::Result<()> { 
+		Ok( () )
+	}
 }
 
 impl Clone for EmptyWrite {
-     #[inline(always)]
-     fn clone(&self) -> Self {
-          EmptyWrite
-     }
+	#[inline(always)]
+	fn clone(&self) -> Self {
+		EmptyWrite
+	}
 }
 
-impl<'a> ExtWrite<'a> for EmptyWrite {    
-     type LockWrite = GuardEmptyWrite; 
+impl<'a> ExtWrite<'a> for EmptyWrite {	
+	type LockWrite = GuardEmptyWrite; 
 
-     #[inline]
-     fn lock(&self) -> Self::LockWrite {
-          GuardEmptyWrite::new()
-     }
+	#[inline]
+	fn lock(&self) -> Self::LockWrite {
+		GuardEmptyWrite::new()
+	}
 }
 
 
 impl Into<Box<Write>> for EmptyWrite {
-     #[inline]
-     fn into(self) -> Box<Write> {
-          Box::new(self) as Box<Write>
-     }
+	#[inline]
+	fn into(self) -> Box<Write> {
+		Box::new(self) as Box<Write>
+	}
 }

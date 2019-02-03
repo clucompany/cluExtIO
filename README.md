@@ -96,7 +96,7 @@ Syntactic sugar extends I/O capabilities.
 		use std::thread;
 
 		pub fn main() {
-				 let arc_out = Arc::new({       
+				 let arc_out = Arc::new({	  
 						let out = stdout();
 
 						let file = FlushLockWrite::new(MutexWrite::new(File::create("/tmp/file.out").unwrap()));

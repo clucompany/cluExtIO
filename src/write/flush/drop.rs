@@ -4,7 +4,7 @@ use std::io;
 use std::fmt;
 
 #[derive(Debug)]
-///An implementation of `Trait Write`, which calls the flush() method on drop.                                  
+///An implementation of `Trait Write`, which calls the flush() method on drop.							
 pub struct FlushDropWrite<T: Write>(T);
 
 impl<T: Write> FlushDropWrite<T> {
@@ -49,10 +49,10 @@ impl<T: Write> Write for FlushDropWrite<T> {
 }
 
 impl<T: Write + Clone> Clone for FlushDropWrite<T> {
-     #[inline]
-     fn clone(&self) -> Self {
-          Self::new(self.0.clone())
-     }
+	#[inline]
+	fn clone(&self) -> Self {
+		Self::new(self.0.clone())
+	}
 }
 
 impl<T: Write> Drop for FlushDropWrite<T> {
@@ -64,8 +64,8 @@ impl<T: Write> Drop for FlushDropWrite<T> {
 
 
 impl<T: 'static + Write> Into<Box<Write>> for FlushDropWrite<T> {
-     #[inline]
-     fn into(self) -> Box<Write> {
-          Box::new(self) as Box<Write>
-     }
+	#[inline]
+	fn into(self) -> Box<Write> {
+		Box::new(self) as Box<Write>
+	}
 }
