@@ -9,7 +9,7 @@ use std::io::Stdout;
 impl<'a> ExtWrite<'a> for Stdout {	
 	type LockWrite = StdoutLock<'a>;
 
-	#[inline]
+	#[inline(always)]
 	fn lock(&'a self) -> Self::LockWrite {
 		self.lock()
 	}
@@ -18,7 +18,7 @@ impl<'a> ExtWrite<'a> for Stdout {
 impl<'a> ExtWrite<'a> for Stderr {
 	type LockWrite = StderrLock<'a>;
 
-	#[inline]
+	#[inline(always)]
 	fn lock(&'a self) -> Self::LockWrite {
 		self.lock()
 	}

@@ -12,11 +12,11 @@ pub fn main() -> Result<(), Error> {
 	let out = {
 		let std_out = std::io::stdout();
 		
-		let file = FlushLockWrite::new(MutexWrite::new(File::create("/tmp/file.out")?));
+		let file = FlushLockWrite::from(MutexWrite::from(File::create("/tmp/file.out")?));
 		//Contains the implementation of ExtWrite. Safe for inter-thread space.
 		//+ Additional self-cleaning after destroying Lock
 
-		let file2 = FlushLockWrite::new(MutexWrite::new(File::create("/tmp/file2.out")?));
+		let file2 = FlushLockWrite::from(MutexWrite::from(File::create("/tmp/file2.out")?));
 		//Contains the implementation of ExtWrite. Safe for inter-thread space.
 		//+ Additional self-cleaning after destroying Lock
 		

@@ -1,4 +1,6 @@
 
+use std::ops::DerefMut;
+use std::ops::Deref;
 use crate::write::flush::FlushDropWrite;
 use crate::write::ext_write::ExtWrite;
 
@@ -9,57 +11,78 @@ use std::fmt;
 
 ///An implementation of `Trait Write` that calls the flush() method when removing a lock.
 #[derive(Debug)]
-pub struct FlushLockWrite<'a, T: ExtWrite<'a>>(T, PhantomData<&'a ()>);
+pub struct FlushLockWrite<'a, T> where T: ExtWrite<'a> {
+	write: T, 
+	_phantom: PhantomData<&'a ()>,
+}
 
-impl<'a, T: ExtWrite<'a>> FlushLockWrite<'a, T> {
+impl<'a, T> FlushLockWrite<'a, T> where T: ExtWrite<'a> {
 	#[inline]
-	pub fn new(a: T) -> Self {
-		FlushLockWrite(a, PhantomData)
+	pub const fn new(a: T) -> Self {
+		Self {
+			write: a,
+			_phantom: PhantomData,	
+		}
 	}
 }
 
-impl<'a, T: ExtWrite<'a>> From<T> for FlushLockWrite<'a, T> {
-	#[inline]
+impl<'a, T> Deref for FlushLockWrite<'a, T> where T: ExtWrite<'a> {
+	type Target = T;
+	
+	#[inline(always)]
+	fn deref(&self) -> &Self::Target {
+		&self.write	
+	}	
+}
+impl<'a, T> DerefMut for FlushLockWrite<'a, T> where T: ExtWrite<'a> {	
+	#[inline(always)]
+	fn deref_mut(&mut self) -> &mut Self::Target {
+		&mut self.write
+	}	
+}
+
+impl<'a, T> From<T> for FlushLockWrite<'a, T> where T: ExtWrite<'a> {
+	#[inline(always)]
 	fn from(a: T) -> Self {
-		FlushLockWrite::new(a)
+		Self::new(a)
 	}
 }
 
 
-impl<'a, T: ExtWrite<'a>> Write for FlushLockWrite<'a, T> {
+impl<'a, T> Write for FlushLockWrite<'a, T> where T: ExtWrite<'a> {
 	#[inline(always)]
 	fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-		self.0.write(buf)
+		self.write.write(buf)
 	}
 
 	#[inline(always)]
 	fn flush(&mut self) -> io::Result<()> {
-		self.0.flush()
+		self.write.flush()
 	}
 
 	#[inline(always)]
 	fn write_all(&mut self, buf: &[u8]) -> io::Result<()> {
-		self.0.write_all(buf)
+		self.write.write_all(buf)
 	}
 
 	#[inline(always)]
 	fn write_fmt(&mut self, fmt: fmt::Arguments) -> io::Result<()> {
-		self.0.write_fmt(fmt)
+		self.write.write_fmt(fmt)
 	}
 }
 
-impl<'a, T: ExtWrite<'a>> ExtWrite<'a> for FlushLockWrite<'a, T> {
+impl<'a, T> ExtWrite<'a> for FlushLockWrite<'a, T> where T: ExtWrite<'a> {
 	type LockWrite = FlushDropWrite<T::LockWrite>;
 
 	#[inline]
 	fn lock(&'a self) -> Self::LockWrite {
-		FlushDropWrite::new(self.0.lock())
+		self.write.lock().into()
 	}
 }
 
-impl<'a, T: ExtWrite<'a> + Clone> Clone for FlushLockWrite<'a, T> {
+impl<'a, T> Clone for FlushLockWrite<'a, T> where T: ExtWrite<'a> + Clone {
 	#[inline]
 	fn clone(&self) -> Self {
-		Self::new(self.0.clone())
+		From::from(self.write.clone())
 	}
 }

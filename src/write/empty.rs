@@ -28,7 +28,7 @@ impl From<()> for EmptyWrite {
 
 impl Write for EmptyWrite {
 	#[inline(always)]
-	fn write<'a>(&mut self, _buf: &'a [u8]) -> io::Result<usize> {
+	fn write(&mut self, _buf: &[u8]) -> io::Result<usize> {
 		Ok( 0 )
 	}
 
@@ -38,7 +38,7 @@ impl Write for EmptyWrite {
 	}
 
 	#[inline(always)]
-	fn write_all<'a>(&mut self, _buf: &'a [u8]) -> io::Result<()> {
+	fn write_all(&mut self, _buf: &[u8]) -> io::Result<()> {
 		Ok( () )
 	}
 
@@ -60,14 +60,6 @@ impl<'a> ExtWrite<'a> for EmptyWrite {
 
 	#[inline]
 	fn lock(&self) -> Self::LockWrite {
-		GuardEmptyWrite::new()
-	}
-}
-
-
-impl Into<Box<Write>> for EmptyWrite {
-	#[inline]
-	fn into(self) -> Box<Write> {
-		Box::new(self) as Box<Write>
+		Self::LockWrite::new()
 	}
 }

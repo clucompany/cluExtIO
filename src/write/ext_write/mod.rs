@@ -14,14 +14,20 @@ pub trait ExtWrite<'a>: Write {
 
 	///Alternative method of blocking the output stream using the closure.
 	#[inline(always)]
-	fn lock_fn<F: FnMut(Self::LockWrite) -> R, R>(&'a self, mut f: F) -> R {
+	fn lock_fn<F: FnOnce(Self::LockWrite) -> R, R>(&'a self, f: F) -> R {
 		f(self.lock())
 	}
 }
 
 
 ///The trait extends the capabilities of the standard Write.
-impl<'a, 'l, L: ExtWrite<'a, LockWrite = W>, W: 'a + Write> ExtWrite<'a> for &'l L where Self: Write {
+impl<'l, 'a, L, W> ExtWrite<'a> for &'l L
+	where 
+	L: ExtWrite<'a, LockWrite = W>, 
+	W: 'a + Write,
+	Self: Write,
+
+{
 	type LockWrite = W;
 
 	
@@ -33,15 +39,22 @@ impl<'a, 'l, L: ExtWrite<'a, LockWrite = W>, W: 'a + Write> ExtWrite<'a> for &'l
 
 	///Alternative method of blocking the output stream using the closure.
 	#[inline(always)]
-	fn lock_fn<F: FnMut(Self::LockWrite) -> R, R>(&'a self, f: F) -> R {
+	fn lock_fn<F: FnOnce(Self::LockWrite) -> R, R>(&'a self, f: F) -> R {
 		L::lock_fn(self, f)
 	}
 }
 
 ///The trait extends the capabilities of the standard Write.
-impl<'a, 'l, L: ExtWrite<'a, LockWrite = W> + Write, W: 'a + Write> ExtWrite<'a> for &'l mut L where Self: Write {
+impl<'l, 'a, L, W> ExtWrite<'a> for &'l mut L
+	where 
+	L: ExtWrite<'a, LockWrite = W>, 
+	W: 'a + Write,
+	Self: Write,
+
+{
 	type LockWrite = W;
 
+	
 	///Blocking the output stream.
 	#[inline(always)]
 	fn lock(&'a self) -> Self::LockWrite {
@@ -50,7 +63,7 @@ impl<'a, 'l, L: ExtWrite<'a, LockWrite = W> + Write, W: 'a + Write> ExtWrite<'a>
 
 	///Alternative method of blocking the output stream using the closure.
 	#[inline(always)]
-	fn lock_fn<F: FnMut(Self::LockWrite) -> R, R>(&'a self, f: F) -> R {
+	fn lock_fn<F: FnOnce(Self::LockWrite) -> R, R>(&'a self, f: F) -> R {
 		L::lock_fn(self, f)
 	}
 }

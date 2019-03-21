@@ -1,4 +1,7 @@
-//Copyright 2018 #UlinProject Денис Котляров
+#![feature(const_fn)]
+#![allow(non_snake_case)]
+
+//Copyright 2019 #UlinProject Денис Котляров
 
 //Licensed under the Apache License, Version 2.0 (the "License");
 //you may not use this file except in compliance with the License.
@@ -13,7 +16,7 @@
 // limitations under the License.
 
 
-//#Ulin Project 1718
+//#Ulin Project 1819
 //
 
 /*!
@@ -150,14 +153,6 @@ pub fn main() {
 	// /tmp/file.out+
 }
 ```
-
-
-
-# License
-
-Copyright 2018 #UlinProject Денис Котляров
-
-Licensed under the Apache License, Version 2.0
 
 */
 
