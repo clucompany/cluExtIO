@@ -1,4 +1,6 @@
 
+use std::ops::DerefMut;
+use std::ops::Deref;
 use crate::analytics::NumOperations;
 use crate::analytics::ByteCounter;
 use std::fmt::Arguments;
@@ -137,5 +139,22 @@ impl<W> From<W> for CounterFMTWrite<W> where W: fmt::Write {
 	#[inline(always)]
 	fn from(a: W) -> Self {
 		Self::new(a)
+	}
+}
+
+
+impl<W> Deref for CounterFMTWrite<W> where W: fmt::Write {
+	type Target = W;
+	
+	#[inline(always)]
+	fn deref(&self) -> &Self::Target {
+		&self.fmt_write	
+	}
+}
+
+impl<W> DerefMut for CounterFMTWrite<W> where W: fmt::Write {
+	#[inline(always)]
+	fn deref_mut(&mut self)	-> &mut Self::Target {
+		&mut self.fmt_write	
 	}
 }

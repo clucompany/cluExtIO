@@ -1,4 +1,6 @@
 
+use std::ops::DerefMut;
+use std::ops::Deref;
 use crate::analytics::Counter;
 use crate::analytics::NumOperations;
 use crate::analytics::ByteCounter;
@@ -179,5 +181,22 @@ impl<W> From<W> for CounterIOWrite<W> where W: io::Write {
 	#[inline(always)]
 	fn from(a: W) -> Self {
 		Self::new(a)
+	}
+}
+
+
+impl<W> Deref for CounterIOWrite<W> where W: io::Write {
+	type Target = W;
+	
+	#[inline(always)]
+	fn deref(&self) -> &Self::Target {
+		&self.io_write	
+	}
+}
+
+impl<W> DerefMut for CounterIOWrite<W> where W: io::Write {
+	#[inline(always)]
+	fn deref_mut(&mut self)	-> &mut Self::Target {
+		&mut self.io_write	
 	}
 }
