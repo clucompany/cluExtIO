@@ -1,6 +1,6 @@
 [package]
 name = "cluExtIO"
-version = "0.2.1"
+version = "0.2.3"
 authors = ["Denis Kotlyarov (Денис Котляров) <denis2005991@gmail.com>"]
 repository = "https://github.com/clucompany/cluExtIO.git"
 license = " Apache-2.0"
@@ -11,6 +11,5 @@ keywords = ["extio", "cluextio", "extension_in_out", "clucompany"]
 categories = ["development-tools"]
 
 description = "Syntactic sugar extends I/O capabilities."
-
 
 [dependencies]

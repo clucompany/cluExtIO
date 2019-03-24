@@ -16,7 +16,7 @@ impl<W: Write, W2: Write> UnionWrite<W, W2> {
 	pub const fn new(out: W, out2: W2) -> Self {
 		Self {
 			write_left: out,
-			write_right: out2,	
+			write_right: out2,
 		}
 	}
 }

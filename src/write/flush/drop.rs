@@ -43,7 +43,7 @@ impl<T> DerefMut for FlushDropWrite<T> where T: Write {
 impl<T> From<T> for FlushDropWrite<T> where T: Write {
 	#[inline(always)]
 	fn from(a: T) -> Self {
-		FlushDropWrite::new(a)
+		Self::new(a)
 	}
 }
 

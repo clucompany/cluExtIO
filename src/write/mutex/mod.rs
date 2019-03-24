@@ -21,22 +21,26 @@ pub trait ImMutWrite<'a> {
 impl<'a, E> ImMutWrite<'a> for E where E: ExtWrite<'a> {
 	#[inline(always)]
 	fn write(&'a self, buf: &[u8]) -> io::Result<usize> {
-		self.lock_fn(|mut a| a.write(buf))
+		let mut lock = self.lock();
+		lock.write(buf)
 	}
 
 	#[inline(always)]
 	fn flush(&'a self) -> io::Result<()> {
-		self.lock_fn(|mut a| a.flush())
+		let mut lock = self.lock();
+		lock.flush()
 	}
 
 	#[inline(always)]
 	fn write_all(&'a self, buf: &[u8]) -> io::Result<()> {
-		self.lock_fn(|mut a| a.write_all(buf))
+		let mut lock = self.lock();
+		lock.write_all(buf)
 	}
 
 	#[inline(always)]
-	fn write_fmt(&'a self, fmt: fmt::Arguments) -> io::Result<()> { 
-		self.lock_fn(|mut a| a.write_fmt(fmt))
+	fn write_fmt(&'a self, fmt: fmt::Arguments) -> io::Result<()> {
+		let mut lock = self.lock();
+		lock.write_fmt(fmt)
 	}
 }
 
@@ -73,11 +77,13 @@ impl<T> MutexWrite<T> where T: Write {
 }
 
 impl<T> From<T> for MutexWrite<T> where T: Write {
+	#[inline(always)]
 	fn from(a: T) -> Self {
 		Self::new(a)
 	}
 }
 impl<T> From<Mutex<T>> for MutexWrite<T> where T: Write {
+	#[inline(always)]
 	fn from(a: Mutex<T>) -> Self {
 		Self::mutex(a)
 	}
@@ -111,7 +117,6 @@ impl<T> Write for MutexWrite<T> where T: Write {
 impl<'a, T: 'a> ExtWrite<'a> for MutexWrite<T> where T: Write {
 	type LockWrite = GuardWrite<'a, T>;
 	
-	#[inline]
 	fn lock(&'a self) -> Self::LockWrite {
 		Self::LockWrite::from(self._lock())
 	}

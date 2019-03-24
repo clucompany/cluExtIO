@@ -15,7 +15,7 @@ pub trait UnionWriteConst: where Self: Write {
 impl<T> UnionWriteConst for T where T: Write {}
 
 
-impl<A: Write, B: Write> From<(A, B)> for UnionWrite<A, B> where A: Write, B: Write {
+impl<A, B> From<(A, B)> for UnionWrite<A, B> where A: Write, B: Write {
 	#[inline(always)]
 	fn from((a, b): (A, B)) -> Self {
 		a.union(b)

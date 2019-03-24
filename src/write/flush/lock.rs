@@ -83,6 +83,6 @@ impl<'a, T> ExtWrite<'a> for FlushLockWrite<'a, T> where T: ExtWrite<'a> {
 impl<'a, T> Clone for FlushLockWrite<'a, T> where T: ExtWrite<'a> + Clone {
 	#[inline]
 	fn clone(&self) -> Self {
-		From::from(self.write.clone())
+		Self::new(self.write.clone())
 	}
 }
