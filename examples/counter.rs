@@ -16,7 +16,7 @@ fn main() -> Result<(), io::Error> {
 	
 	println!();
 	println!("#Debug out:");
-	counter.write_stat(io::stdout())?;
+	counter.write_stat(&mut out.lock())?;
 	
 	Ok( () )
 }

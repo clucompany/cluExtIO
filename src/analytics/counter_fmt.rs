@@ -6,6 +6,7 @@ use crate::analytics::ByteCounter;
 use std::fmt::Arguments;
 use std::io;
 use std::fmt;
+use crate::WriteFmt;
 
 #[derive(Debug)]
 pub struct CounterFMTWrite<W> where W: fmt::Write {
@@ -41,7 +42,7 @@ impl<W> CounterFMTWrite<W> where W: fmt::Write {
 	}
 	
 	
-	pub fn write_stat<WR: io::Write>(&self, mut w: WR) -> Result<(), io::Error> {
+	pub fn write_stat<WF: WriteFmt<E>, E>(&self, mut w: WF) -> Result<(), E> {
 		
 		if !self.write_str.is_empty() {
 			writeln!(w, 

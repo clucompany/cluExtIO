@@ -1,4 +1,5 @@
 
+use crate::WriteFmt;
 use std::ops::DerefMut;
 use std::ops::Deref;
 use crate::analytics::Counter;
@@ -49,7 +50,7 @@ impl<W> CounterIOWrite<W> where W: io::Write {
 	}
 	
 	
-	pub fn write_stat<WR: io::Write>(&self, mut w: WR) -> Result<(), io::Error> {
+	pub fn write_stat<WF: WriteFmt<E>, E>(&self, mut w: WF) -> Result<(), E> {
 		
 		if !self.write.is_empty() {
 			writeln!(w, 
