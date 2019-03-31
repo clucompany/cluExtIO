@@ -1,48 +1,14 @@
 
-use crate::write::ext_write::ExtWrite;
-
 mod guard;
+use crate::LockWrite;
 pub use self::guard::*;
 
 use std::sync::MutexGuard;
-use std::io::Write;
-use std::sync::Mutex;
 use std::io;
+use std::sync::Mutex;
 use std::fmt;
 
-///Unchangeable `Trait Write`.
-pub trait ImMutWrite<'a> {
-	fn write(&'a self, buf: &[u8]) -> io::Result<usize>;
-	fn flush(&'a self) -> io::Result<()>;
-	fn write_all(&'a self, buf: &[u8]) -> io::Result<()>;
-	fn write_fmt(&'a self, fmt: fmt::Arguments) -> io::Result<()>;
-}
 
-impl<'a, E> ImMutWrite<'a> for E where E: ExtWrite<'a> {
-	#[inline(always)]
-	fn write(&'a self, buf: &[u8]) -> io::Result<usize> {
-		let mut lock = self.lock();
-		lock.write(buf)
-	}
-
-	#[inline(always)]
-	fn flush(&'a self) -> io::Result<()> {
-		let mut lock = self.lock();
-		lock.flush()
-	}
-
-	#[inline(always)]
-	fn write_all(&'a self, buf: &[u8]) -> io::Result<()> {
-		let mut lock = self.lock();
-		lock.write_all(buf)
-	}
-
-	#[inline(always)]
-	fn write_fmt(&'a self, fmt: fmt::Arguments) -> io::Result<()> {
-		let mut lock = self.lock();
-		lock.write_fmt(fmt)
-	}
-}
 
 
 
@@ -50,19 +16,19 @@ impl<'a, E> ImMutWrite<'a> for E where E: ExtWrite<'a> {
 
 ///Combining multiple `Trait Write` into one common.
 #[derive(Debug)]
-pub struct MutexWrite<T> where T: Write {
+pub struct MutexWrite<T> {
 	mutex: Mutex<T>
 }
 
-impl<T> MutexWrite<T> where T: Write {
+impl<T> MutexWrite<T> {
 	#[inline]
 	pub fn new(t: T) -> Self {
-		Self::mutex(Mutex::new(t))
+		Mutex::new(t).into()
 	}
 	
 	#[inline]
 	pub const fn mutex(f: Mutex<T>) -> Self {
-		MutexWrite {
+		Self {
 			mutex: f
 		}
 	}
@@ -76,13 +42,14 @@ impl<T> MutexWrite<T> where T: Write {
 	}
 }
 
-impl<T> From<T> for MutexWrite<T> where T: Write {
+
+impl<T> From<T> for MutexWrite<T> {
 	#[inline(always)]
 	fn from(a: T) -> Self {
 		Self::new(a)
 	}
 }
-impl<T> From<Mutex<T>> for MutexWrite<T> where T: Write {
+impl<T> From<Mutex<T>> for MutexWrite<T> {
 	#[inline(always)]
 	fn from(a: Mutex<T>) -> Self {
 		Self::mutex(a)
@@ -90,34 +57,64 @@ impl<T> From<Mutex<T>> for MutexWrite<T> where T: Write {
 }
 
 
-impl<T> Write for MutexWrite<T> where T: Write {
-	#[inline(always)]
+impl<T> io::Write for MutexWrite<T> where T: io::Write {
 	fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
 		self._lock().write(buf)
 	}
 
-	#[inline(always)]
 	fn flush(&mut self) -> io::Result<()> {
 		self._lock().flush()
 	}
 
-	#[inline(always)]
 	fn write_all(&mut self, buf: &[u8]) -> io::Result<()> {
 		self._lock().write_all(buf)
 	}
 
-	#[inline(always)]
 	fn write_fmt(&mut self, fmt: fmt::Arguments) -> io::Result<()> { 
 		self._lock().write_fmt(fmt)
 	}
 }
 
 
+/*impl<'a, T> ImmutWrite<'a> for MutexWrite<T> where T: ImmutWrite<'a> {
+	fn write(&'a self, buf: &[u8]) -> io::Result<usize> {
+		self._lock().write(buf)
+	}
 
-impl<'a, T: 'a> ExtWrite<'a> for MutexWrite<T> where T: Write {
-	type LockWrite = GuardWrite<'a, T>;
+	fn flush(&'a self) -> io::Result<()> {
+		self._lock().flush()
+	}
+
+	fn write_all(&'a self, buf: &[u8]) -> io::Result<()> {
+		self._lock().write_all(buf)
+	}
+
+	fn write_fmt(&'a self, fmt: fmt::Arguments) -> io::Result<()> { 
+		self._lock().write_fmt(fmt)
+	}
+}*/
+
+
+impl<T> fmt::Write for MutexWrite<T> where T: fmt::Write {
+	fn write_str(&mut self, s: &str) -> Result<(), fmt::Error> {
+		self._lock().write_str(s)
+	}
 	
-	fn lock(&'a self) -> Self::LockWrite {
-		Self::LockWrite::from(self._lock())
+	fn write_char(&mut self, c: char) -> Result<(), fmt::Error> {
+		self._lock().write_char(c)
+	}
+	
+	fn write_fmt(self: &mut Self, args: fmt::Arguments) -> Result<(), fmt::Error> {
+		self._lock().write_fmt(args)
+	}
+}
+
+
+
+impl<'a, T:'a > LockWrite<'a> for MutexWrite<T>  {
+	type LockResult = GuardWrite<'a, T>;
+	
+	fn lock(&'a self) -> Self::LockResult {
+		self._lock().into()
 	}
 }

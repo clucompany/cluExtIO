@@ -2,8 +2,9 @@
 extern crate cluExtIO;
 
 use std::io::Error;
-use cluExtIO::ExtWrite;
+use cluExtIO::LockWrite;
 use std::io::Write;
+use std::io;
 
 pub fn main() -> Result<(), Error> {
 
@@ -12,13 +13,13 @@ pub fn main() -> Result<(), Error> {
 	my_function(&out, 0, "No eND:)")?;
 	
 	out.lock_fn(|mut l| {
-		l.write(b"End.\n")
+		writeln!(l, "End")
 	})?;
 
 	Ok( () )
 }
 
-fn my_function<'a, W: ExtWrite<'a>>(raw_write: &'a W, n: usize, str: &'static str) -> Result<(), std::io::Error> {
+fn my_function<'a, W>(raw_write: &'a W, n: usize, str: &'static str) -> Result<(), io::Error> where W: LockWrite<'a>, W::LockResult : io::Write {
 	let mut lock = raw_write.lock();
 
 	lock.write_fmt(format_args!("#@{} {}\n", n, "Test"))?;

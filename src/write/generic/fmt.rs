@@ -25,7 +25,7 @@ impl<E> WriteFmt<E> for Box<WriteFmt<E>> {
 
 
 
-
+//FMT
 impl<'a> WriteFmt<fmt::Error> for dyn fmt::Write + 'a {
 	#[inline(always)]
 	fn write_fmt(&mut self, fmt: Arguments) -> Result<(), fmt::Error> {
@@ -88,7 +88,13 @@ impl<'a, 'l, T> WriteFmt<io::Error> for &'l mut T where T: io::Write + 'a {
 }
 
 
-
+//Vec<u8>
+impl WriteFmt<io::Error> for Vec<u8> {
+	#[inline(always)]
+	fn write_fmt(&mut self, fmt: Arguments) -> Result<(), io::Error> {
+		io::Write::write_fmt(self, fmt)	
+	}
+}
 
 
 
@@ -96,6 +102,22 @@ impl<'a, 'l, T> WriteFmt<io::Error> for &'l mut T where T: io::Write + 'a {
 pub enum FmtORIoErr {
 	FMT(fmt::Error),
 	IO(io::Error),
+}
+
+impl FmtORIoErr {
+	pub fn is_fmt(&self) -> bool {
+		match self {
+			FmtORIoErr::FMT(_) => true,
+			_ => false,
+		}	
+	}
+	
+	pub fn is_io(&self) -> bool {
+		match self {
+			FmtORIoErr::IO(_) => true,
+			_ => false,
+		}	
+	}
 }
 
 impl From<fmt::Error> for FmtORIoErr {

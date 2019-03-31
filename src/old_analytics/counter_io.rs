@@ -1,5 +1,5 @@
 
-use crate::WriteFmt;
+use crate::general_write::fmt::WriteFmt;
 use std::ops::DerefMut;
 use std::ops::Deref;
 use crate::analytics::Counter;

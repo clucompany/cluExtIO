@@ -1,12 +1,11 @@
 
+use crate::general_write::fmt::WriteFmt;
 use std::ops::DerefMut;
 use std::ops::Deref;
 use crate::analytics::NumOperations;
 use crate::analytics::ByteCounter;
 use std::fmt::Arguments;
-use std::io;
 use std::fmt;
-use crate::WriteFmt;
 
 #[derive(Debug)]
 pub struct CounterFMTWrite<W> where W: fmt::Write {

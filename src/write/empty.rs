@@ -1,6 +1,5 @@
 
-use crate::write::ext_write::ExtWrite;
-
+use crate::lock_write::LockWrite;
 use std::io;
 use std::fmt;
 
@@ -72,11 +71,11 @@ impl Clone for EmptyWrite {
 	}
 }
 
-impl<'a> ExtWrite<'a> for EmptyWrite {	
-	type LockWrite = GuardEmptyWrite; 
+impl<'a> LockWrite<'a> for EmptyWrite {	
+	type LockResult = GuardEmptyWrite; 
 
 	#[inline]
-	fn lock(&self) -> Self::LockWrite {
-		Self::LockWrite::new()
+	fn lock(&self) -> Self::LockResult {
+		Self::LockResult::new()
 	}
 }

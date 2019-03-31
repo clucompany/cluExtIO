@@ -1,27 +1,28 @@
 extern crate cluExtIO;
 
+use cluExtIO::ConstUnionWrite;
 use std::io::Error;
-use cluExtIO::UnionWriteConst;
-use cluExtIO::ExtWrite;
+use cluExtIO::LockWrite;
 use cluExtIO::MutexWrite;
-use cluExtIO::FlushLockWrite;
+use cluExtIO::drop_write::DropFlushWrite;
 use std::io::Write;
+use std::io;
 use std::fs::File;
 
 pub fn main() -> Result<(), Error> {
 	let out = {
 		let std_out = std::io::stdout();
 		
-		let file = FlushLockWrite::from(MutexWrite::from(File::create("/tmp/file.out")?));
-		//Contains the implementation of ExtWrite. Safe for inter-thread space.
+		let file = DropFlushWrite::from(MutexWrite::from(File::create("/tmp/file.out")?));
+		//Contains the implementation of LockWrite. Safe for inter-thread space.
 		//+ Additional self-cleaning after destroying Lock
 
-		let file2 = FlushLockWrite::from(MutexWrite::from(File::create("/tmp/file2.out")?));
-		//Contains the implementation of ExtWrite. Safe for inter-thread space.
+		let file2 = DropFlushWrite::from(MutexWrite::from(File::create("/tmp/file2.out")?));
+		//Contains the implementation of LockWrite. Safe for inter-thread space.
 		//+ Additional self-cleaning after destroying Lock
 		
 		std_out.union(file).union(file2)
-	}; //Combined `ExtWrite` with lock function. OUT_PIPE + FILE_PIPE(2) = UNION_SAFE_PIPE
+	}; //Combined `LockWrite` with lock function. OUT_PIPE + FILE_PIPE(2) = UNION_SAFE_PIPE
 
 	my_function(&out, 0, "No eND:)")?;
 	
@@ -36,7 +37,7 @@ pub fn main() -> Result<(), Error> {
 	Ok( () )
 }
 
-fn my_function<'a, W: ExtWrite<'a>>(raw_write: &'a W, n: usize, str: &'static str) -> Result<(), std::io::Error> {
+fn my_function<'a, W>(raw_write: &'a W, n: usize, str: &'static str) -> Result<(), io::Error> where W: LockWrite<'a>, W::LockResult : io::Write {
 	let mut lock = raw_write.lock();
 
 	lock.write_fmt(format_args!("#@{} {}\n", n, "Test"))?;

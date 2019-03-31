@@ -1,7 +1,7 @@
 
 
-use cluExtIO::FmtORIoErr;
-use cluExtIO::WriteFmt;
+use cluExtIO::generic::WriteFmt;
+use cluExtIO::generic::FmtORIoErr;
 
 fn main() -> Result<(), FmtORIoErr> {
 	let mut str = String::new();

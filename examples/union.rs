@@ -2,9 +2,9 @@
 
 extern crate cluExtIO;
 
+use cluExtIO::ConstUnionWrite;
 use std::io::Error;
 use std::io::Write;
-use cluExtIO::UnionWriteConst;
 use std::fs::File;
 
 pub fn main() -> Result<(), Error> {

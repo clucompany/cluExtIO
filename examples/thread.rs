@@ -1,11 +1,11 @@
 extern crate cluExtIO;
 
+use cluExtIO::ConstUnionWrite;
 use std::io::stdout;
-use cluExtIO::UnionWriteConst;
-use cluExtIO::ExtWrite;
+use cluExtIO::LockWrite;
 use cluExtIO::MutexWrite;
-use cluExtIO::FlushLockWrite;
-use cluExtIO::ImMutWrite;
+use cluExtIO::drop_write::DropFlushWrite;
+use cluExtIO::ImmutWrite;
 
 use std::io::Write;
 use std::fs::File;
@@ -17,16 +17,16 @@ pub fn main() {
 	let arc_out = Arc::new({	  
 		let out = stdout();
 
-		let file = FlushLockWrite::new(MutexWrite::new(File::create("/tmp/file.out").unwrap()));
-		//Contains the implementation of ExtWrite. Safe for inter-thread space.
+		let file = DropFlushWrite::new(MutexWrite::new(File::create("/tmp/file.out").unwrap()));
+		//Contains the implementation of LockWrite. Safe for inter-thread space.
 		//+ Additional self-cleaning after destroying Lock
 
-		let file2 = FlushLockWrite::new(MutexWrite::new(File::create("/tmp/file2.out").unwrap()));
-		//Contains the implementation of ExtWrite. Safe for inter-thread space.
+		let file2 = DropFlushWrite::new(MutexWrite::new(File::create("/tmp/file2.out").unwrap()));
+		//Contains the implementation of LockWrite. Safe for inter-thread space.
 		//+ Additional self-cleaning after destroying Lock
 		
 		out.union(file).union(file2)
-	}); //Combined `ExtWrite` with lock function. OUT_PIPE + FILE_PIPE(2) = UNION_SAFE_PIPE
+	}); //Combined `LockWrite` with lock function. OUT_PIPE + FILE_PIPE(2) = UNION_SAFE_PIPE
 
 
 	let barrier = Arc::new(Barrier::new(5 + 1));

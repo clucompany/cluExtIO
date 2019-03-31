@@ -1,7 +1,7 @@
 #![feature(const_fn)]
 #![allow(non_snake_case)]
 
-//Copyright 2019 #UlinProject Денис Котляров
+//Copyright 2019 #UlinProject Denis Kotlyarov (Денис Котляров) <denis2005991@gmail.com>
 
 //Licensed under the Apache License, Version 2.0 (the "License");
 //you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ Syntactic sugar extends I/O capabilities.
 1. EmptyWrite - Empty "Write" that does nothing.
 2. UnionWrite - Possibility to combine several "Write" into one record.
 3. MutexWrite - Combining Mutex and Write for multi-threaded access.
-4. ExtWrite - The trait extends the capabilities of the standard Write, adds lock methods.
+4. LockWrite - The trait extends the capabilities of the standard Write, adds lock methods.
 5. FlushDropWrite - An implementation of "Trait Write", which calls the flush () method on drop. 
 6. FlushLockWrite - An implementation of "Trait Write" that calls the flush() method when removing a lock.
 7. NotChanWrite - Unchangeable "Trait Write".
@@ -71,7 +71,7 @@ fn my_function<W: Write>(mut w: W) -> Result<(), std::io::Error> {
 ```
 extern crate cluExtIO;
 
-use cluExtIO::ExtWrite;
+use cluExtIO::LockWrite;
 use std::io::Write;
 
 pub fn main() {
@@ -85,7 +85,7 @@ pub fn main() {
 	}).unwrap();
 }
 
-fn my_function<'a, W: ExtWrite<'a>>(raw_write: &'a W, n: usize, str: &'static str) -> Result<(), std::io::Error> {
+fn my_function<'a, W: LockWrite<'a>>(raw_write: &'a W, n: usize, str: &'static str) -> Result<(), std::io::Error> {
 	let mut lock = raw_write.lock();
 
 	lock.write_fmt(format_args!("#@{} {}\n", n, "Test"))?;
@@ -102,7 +102,7 @@ extern crate cluExtIO;
 
 use std::io::stdout;
 use cluExtIO::UnionWriteConst;
-use cluExtIO::ExtWrite;
+use cluExtIO::LockWrite;
 use cluExtIO::MutexWrite;
 use cluExtIO::FlushLockWrite;
 use cluExtIO::NotChanWrite;
@@ -117,15 +117,15 @@ pub fn main() {
 		let out = stdout();
 
 		let file = FlushLockWrite::new(MutexWrite::new(File::create("/tmp/file.out").unwrap()));
-		//Contains the implementation of ExtWrite. Safe for inter-thread space.
+		//Contains the implementation of LockWrite. Safe for inter-thread space.
 		//+ Additional self-cleaning after destroying Lock
 
 		let file2 = FlushLockWrite::new(MutexWrite::new(File::create("/tmp/file2.out").unwrap()));
-		//Contains the implementation of ExtWrite. Safe for inter-thread space.
+		//Contains the implementation of LockWrite. Safe for inter-thread space.
 		//+ Additional self-cleaning after destroying Lock
 		
 		out.union(file).union(file2)
-	}); //Combined `ExtWrite` with lock function. OUT_PIPE + FILE_PIPE(2) = UNION_SAFE_PIPE
+	}); //Combined `LockWrite` with lock function. OUT_PIPE + FILE_PIPE(2) = UNION_SAFE_PIPE
 
 
 	let barrier = Arc::new(Barrier::new(5 + 1));
@@ -159,4 +159,5 @@ pub fn main() {
 mod write;
 pub use self::write::*;
 
-pub mod analytics;
+pub mod drop_write;
+

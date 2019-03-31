@@ -1,16 +1,15 @@
 
-mod ext_write;
-mod flush;
-mod union;
-mod mutex;
-mod empty;
-mod fmt;
-mod str;
+pub mod generic;
 
-pub use self::ext_write::*;
-pub use self::flush::*;
-pub use self::union::*;
+mod mutex;
 pub use self::mutex::*;
-pub use self::empty::*;
-pub use self::fmt::*;
-pub use self::str::*;
+
+
+mod immut;
+pub use self::immut::*;
+
+mod lock;
+pub use self::lock::*;
+
+mod union;
+pub use self::union::*;
