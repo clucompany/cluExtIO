@@ -4,7 +4,7 @@ use cluExtIO::ConstUnionWrite;
 use std::io::stdout;
 use cluExtIO::LockWrite;
 use cluExtIO::MutexWrite;
-use cluExtIO::drop_write::DropFlushWrite;
+use cluExtIO::drop_write::DropWriteFlush;
 use cluExtIO::ImmutWrite;
 
 use std::io::Write;
@@ -17,11 +17,11 @@ pub fn main() {
 	let arc_out = Arc::new({	  
 		let out = stdout();
 
-		let file = DropFlushWrite::new(MutexWrite::new(File::create("/tmp/file.out").unwrap()));
+		let file = DropWriteFlush::new(MutexWrite::new(File::create("/tmp/file.out").unwrap()));
 		//Contains the implementation of LockWrite. Safe for inter-thread space.
 		//+ Additional self-cleaning after destroying Lock
 
-		let file2 = DropFlushWrite::new(MutexWrite::new(File::create("/tmp/file2.out").unwrap()));
+		let file2 = DropWriteFlush::new(MutexWrite::new(File::create("/tmp/file2.out").unwrap()));
 		//Contains the implementation of LockWrite. Safe for inter-thread space.
 		//+ Additional self-cleaning after destroying Lock
 		

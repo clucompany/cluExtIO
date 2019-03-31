@@ -4,7 +4,7 @@ use cluExtIO::ConstUnionWrite;
 use std::io::Error;
 use cluExtIO::LockWrite;
 use cluExtIO::MutexWrite;
-use cluExtIO::drop_write::DropFlushWrite;
+use cluExtIO::drop_write::DropWriteFlush;
 use std::io::Write;
 use std::io;
 use std::fs::File;
@@ -13,11 +13,11 @@ pub fn main() -> Result<(), Error> {
 	let out = {
 		let std_out = std::io::stdout();
 		
-		let file = DropFlushWrite::from(MutexWrite::from(File::create("/tmp/file.out")?));
+		let file = DropWriteFlush::from(MutexWrite::from(File::create("/tmp/file.out")?));
 		//Contains the implementation of LockWrite. Safe for inter-thread space.
 		//+ Additional self-cleaning after destroying Lock
 
-		let file2 = DropFlushWrite::from(MutexWrite::from(File::create("/tmp/file2.out")?));
+		let file2 = DropWriteFlush::from(MutexWrite::from(File::create("/tmp/file2.out")?));
 		//Contains the implementation of LockWrite. Safe for inter-thread space.
 		//+ Additional self-cleaning after destroying Lock
 		

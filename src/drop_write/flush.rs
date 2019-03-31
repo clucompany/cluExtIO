@@ -1,6 +1,6 @@
 
 use crate::LockWrite;
-use crate::write::generic::FlushWrite;
+use crate::write::generic::WriteFlush;
 use std::ops::DerefMut;
 use std::ops::Deref;
 use std::marker::PhantomData;
@@ -8,12 +8,12 @@ use std::io;
 use std::fmt;
 
 #[derive(Debug)]
-pub struct DropFlushWrite<T, E> where T: FlushWrite<E> {
+pub struct DropWriteFlush<T, E> where T: WriteFlush<E> {
 	write: T,
 	_p: PhantomData<E>,
 }
 
-impl<T, E> DropFlushWrite<T, E> where T: FlushWrite<E> {
+impl<T, E> DropWriteFlush<T, E> where T: WriteFlush<E> {
 	#[inline]
 	pub const fn new(write: T) -> Self {
 		Self {
@@ -23,14 +23,14 @@ impl<T, E> DropFlushWrite<T, E> where T: FlushWrite<E> {
 	}
 }
 
-impl<T, E> From<T> for DropFlushWrite<T, E> where T: FlushWrite<E> {
+impl<T, E> From<T> for DropWriteFlush<T, E> where T: WriteFlush<E> {
 	#[inline(always)]
 	fn from(a: T) -> Self {
 		Self::new(a)
 	}
 }
 
-impl<T, E> Deref for DropFlushWrite<T, E> where T: FlushWrite<E> {
+impl<T, E> Deref for DropWriteFlush<T, E> where T: WriteFlush<E> {
 	type Target = T;
 	
 	#[inline(always)]
@@ -39,7 +39,7 @@ impl<T, E> Deref for DropFlushWrite<T, E> where T: FlushWrite<E> {
 	}
 }
 
-impl<T, E> DerefMut for DropFlushWrite<T, E> where T: FlushWrite<E> {
+impl<T, E> DerefMut for DropWriteFlush<T, E> where T: WriteFlush<E> {
 	#[inline(always)]
 	fn deref_mut(&mut self) -> &mut Self::Target {
 		&mut self.write
@@ -47,7 +47,7 @@ impl<T, E> DerefMut for DropFlushWrite<T, E> where T: FlushWrite<E> {
 }
 
 
-impl<T, E> io::Write for DropFlushWrite<T, E> where T: FlushWrite<E> + io::Write {
+impl<T, E> io::Write for DropWriteFlush<T, E> where T: WriteFlush<E> + io::Write {
 	#[inline(always)]
 	fn write(&mut self, buf: &[u8]) -> Result<usize, io::Error> {
 		self.write.write(buf)	
@@ -70,7 +70,7 @@ impl<T, E> io::Write for DropFlushWrite<T, E> where T: FlushWrite<E> + io::Write
 }
 
 
-impl<'a, T> LockWrite<'a> for DropFlushWrite<T, io::Error> where T: LockWrite<'a> + FlushWrite<io::Error> + io::Write {
+impl<'a, T> LockWrite<'a> for DropWriteFlush<T, io::Error> where T: LockWrite<'a> + WriteFlush<io::Error> + io::Write {
 	type LockResult = T::LockResult;
 	
 	#[inline(always)]
@@ -81,7 +81,7 @@ impl<'a, T> LockWrite<'a> for DropFlushWrite<T, io::Error> where T: LockWrite<'a
 
 
 
-impl<T, E> Drop for DropFlushWrite<T, E> where T: FlushWrite<E> {
+impl<T, E> Drop for DropWriteFlush<T, E> where T: WriteFlush<E> {
 	fn drop(&mut self) {
 		let _e = self.write.flush();
 	}
