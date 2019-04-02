@@ -10,7 +10,6 @@ pub trait WriteStr<'a, Ok, Err> {
 		for str in arr {
 			let _e = self.write_str(str)?;
 		}
-		
 		Ok( () )
 	}
 	
@@ -27,6 +26,22 @@ pub trait WriteStr<'a, Ok, Err> {
 	}
 }*/
 
+impl<'a, 's, T, Ok, Err> WriteStr<'a, Ok, Err> for &'s mut T where T: WriteStr<'a, Ok, Err> {
+	#[inline(always)]
+	fn write_str(&mut self, s: &'a str) -> Result<Ok, Err> {
+		T::write_str(self, s)
+	}
+	
+	#[inline(always)]
+	fn write_str_array<'l>(&mut self, arr: &'l [&'a str]) -> Result<(), Err> {
+		T::write_str_array(self, arr)
+	}
+	
+	#[inline(always)]
+	fn write_str_lenarray<'l>(&mut self, _all_size: usize, arr: &'l [&'a str]) -> Result<(), Err> {
+		T::write_str_lenarray(self, _all_size, arr)
+	}
+}
 
 impl<'a, 's, Ok, Err> WriteStr<'a, Ok, Err> for &'s mut dyn WriteStr<'a, Ok, Err> {
 	#[inline(always)]
@@ -47,15 +62,15 @@ impl<'a, 's, Ok, Err> WriteStr<'a, Ok, Err> for &'s mut dyn WriteStr<'a, Ok, Err
 
 
 
-impl<'a> WriteStr<'a, (), ()> for Vec<u8> {
+impl<'a, Err> WriteStr<'a, (), Err> for Vec<u8> {
 	#[inline(always)]
-	fn write_str(&mut self, s: &'a str) -> Result<(), ()> {
+	fn write_str(&mut self, s: &'a str) -> Result<(), Err> {
 		self.extend_from_slice(s.as_bytes());
 		Ok( () )
 	}
 	
 	#[inline(always)]
-	fn write_str_array<'l>(&mut self, arr: &'l [&'a str]) -> Result<(), ()> {
+	fn write_str_array<'l>(&mut self, arr: &'l [&'a str]) -> Result<(), Err> {
 		for a in arr.into_iter() {
 			self.extend_from_slice(a.as_bytes());
 		}
@@ -64,7 +79,7 @@ impl<'a> WriteStr<'a, (), ()> for Vec<u8> {
 	}
 	
 	#[inline(always)]
-	fn write_str_lenarray<'l>(&mut self, all_size: usize, arr: &'l [&'a str]) -> Result<(), ()> {
+	fn write_str_lenarray<'l>(&mut self, all_size: usize, arr: &'l [&'a str]) -> Result<(), Err> {
 		self.reserve(all_size);
 		for a in arr.into_iter() {
 			self.extend_from_slice(a.as_bytes());
@@ -73,15 +88,16 @@ impl<'a> WriteStr<'a, (), ()> for Vec<u8> {
 	}
 }
 
-impl<'a> WriteStr<'a, (), ()> for Vec<&'a str> {
+impl<'a, Err> WriteStr<'a, (), Err> for Vec<&'a str> {
 	#[inline(always)]
-	fn write_str(&mut self, s: &'a str) -> Result<(), ()> {
+	fn write_str(&mut self, s: &'a str) -> Result<(), Err> {
 		self.push(s);
+		
 		Ok( () )
 	}
 	
 	#[inline(always)]
-	fn write_str_array<'l>(&mut self, arr: &'l [&'a str]) -> Result<(), ()> {
+	fn write_str_array<'l>(&mut self, arr: &'l [&'a str]) -> Result<(), Err> {
 		for a in arr.into_iter() {
 			self.push(a);
 		}
@@ -90,7 +106,7 @@ impl<'a> WriteStr<'a, (), ()> for Vec<&'a str> {
 	}
 	
 	#[inline(always)]
-	fn write_str_lenarray<'l>(&mut self, all_size: usize, arr: &'l [&'a str]) -> Result<(), ()> {
+	fn write_str_lenarray<'l>(&mut self, all_size: usize, arr: &'l [&'a str]) -> Result<(), Err> {
 		self.reserve(all_size);
 		for a in arr.into_iter() {
 			self.push(a);
@@ -102,15 +118,16 @@ impl<'a> WriteStr<'a, (), ()> for Vec<&'a str> {
 
 
 
-impl<'a> WriteStr<'a, (), ()> for String {
+impl<'a, Err> WriteStr<'a, (), Err> for String {
 	#[inline(always)]
-	fn write_str(&mut self, s: &'a str) -> Result<(), ()> {
+	fn write_str(&mut self, s: &'a str) -> Result<(), Err> {
 		self.push_str(s);
+		
 		Ok( () )
 	}
 	
 	#[inline(always)]
-	fn write_str_array<'l>(&mut self, arr: &'l [&'a str]) -> Result<(), ()> {
+	fn write_str_array<'l>(&mut self, arr: &'l [&'a str]) -> Result<(), Err> {
 		for a in arr.into_iter() {
 			self.push_str(a);
 		}
@@ -119,7 +136,7 @@ impl<'a> WriteStr<'a, (), ()> for String {
 	}
 	
 	#[inline(always)]
-	fn write_str_lenarray<'l>(&mut self, all_size: usize, arr: &'l [&str]) -> Result<(), ()> {
+	fn write_str_lenarray<'l>(&mut self, all_size: usize, arr: &'l [&str]) -> Result<(), Err> {
 		self.reserve(all_size);
 		for a in arr.into_iter() {
 			self.push_str(a);
@@ -153,6 +170,7 @@ impl<'a, 's> WriteStr<'a, (), ErrWriteStr> for dyn fmt::Write + 's {
 		if let Err(e) = fmt::Write::write_str(self, s) {
 			return Err(e.into());	
 		}
+		
 		Ok( () )
 	}
 }
@@ -163,6 +181,7 @@ impl<'a, 's> WriteStr<'a, (), ErrWriteStr> for dyn io::Write + 's {
 		if let Err(e) = io::Write::write(self, s.as_bytes()) {
 			return Err(e.into());
 		}
+		
 		Ok( () )
 	}
 }
