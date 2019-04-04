@@ -141,6 +141,19 @@ impl<'s> WriteStr for dyn fmt::Write + 's {
 	}
 }
 
+
+impl<'a, 's> WriteStr for &'a mut (dyn fmt::Write + 's) {
+	type Ok = ();
+	type Err = fmt::Error;
+	
+	#[inline(always)]
+	fn write_str(&mut self, s: &str) -> Result<(), fmt::Error> {
+		fmt::Write::write_str(self, s)
+	}
+}
+
+
+
 impl<'s> WriteStr for dyn io::Write + 's {
 	type Ok = usize;
 	type Err = io::Error;
@@ -150,6 +163,17 @@ impl<'s> WriteStr for dyn io::Write + 's {
 		io::Write::write(self, s.as_bytes())
 	}
 }
+
+impl<'a, 's> WriteStr for &'a mut (dyn io::Write + 's) {
+	type Ok = usize;
+	type Err = io::Error;
+	
+	#[inline(always)]
+	fn write_str(&mut self, s: &str) -> Result<usize, io::Error> {
+		io::Write::write(self, s.as_bytes())
+	}
+}
+
 
 //
 impl<'s> fmt::Write for &'s mut dyn WriteStr<Ok=(), Err=fmt::Error> {
