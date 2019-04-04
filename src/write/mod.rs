@@ -1,5 +1,6 @@
 
 pub mod generic;
+pub mod phantom;
 
 mod mutex;
 pub use self::mutex::*;
@@ -13,3 +14,4 @@ pub use self::lock::*;
 
 mod union;
 pub use self::union::*;
+
