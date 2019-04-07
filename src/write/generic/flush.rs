@@ -1,27 +1,35 @@
 
 use std::io;
 
-pub trait WriteFlush<E> {
-	fn flush(&mut self) -> Result<(), E>;
+pub trait WriteFlush {
+	type Err;
+	
+	fn flush(&mut self) -> Result<(), Self::Err>;
 }
 
-impl<'l, 's, E> WriteFlush<E> for &'l (dyn WriteFlush<E> + 's) {
+impl<'l, 's, E> WriteFlush for &'l (dyn WriteFlush<Err = E> + 's) {
+	type Err = E;
+	
 	#[inline(always)]
 	fn flush(&mut self) -> Result<(), E> {
-		(self as &mut dyn WriteFlush<E>).flush()
+		(self as &mut dyn WriteFlush<Err = Self::Err>).flush()
 	}
 }
 
-impl<'l, 's, E> WriteFlush<E> for &'l mut (dyn WriteFlush<E> + 's) {
+impl<'l, 's, E> WriteFlush for &'l mut (dyn WriteFlush<Err = E> + 's) {
+	type Err = E;
+	
 	#[inline(always)]
-	fn flush(&mut self) -> Result<(), E> {
-		(self as &mut dyn WriteFlush<E>).flush()
+	fn flush(&mut self) -> Result<(), Self::Err> {
+		(self as &mut dyn WriteFlush<Err = Self::Err>).flush()
 	}
 }
 
-impl<'s, T> WriteFlush<io::Error> for T where T: io::Write + 's {
+impl<'s, T> WriteFlush for T where T: io::Write + 's {
+	type Err = io::Error;
+	
 	#[inline(always)]
-	fn flush(&mut self) -> Result<(), io::Error> {
+	fn flush(&mut self) -> Result<(), Self::Err> {
 		T::flush(self)
 	}
 }
