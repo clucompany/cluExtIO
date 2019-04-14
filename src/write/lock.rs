@@ -20,9 +20,7 @@ pub trait LockWrite<'a> {
 
 
 ///The trait extends the capabilities of the standard Write.
-impl<'l, 'a, T, W> LockWrite<'a> for &'l T
-	where 
-	T: LockWrite<'a, LockResult = W>, 
+impl<'l, 'a, T, W> LockWrite<'a> for &'l T where T: LockWrite<'a, LockResult = W>, 
 	W: 'a,
 {
 	type LockResult = W;
@@ -42,9 +40,7 @@ impl<'l, 'a, T, W> LockWrite<'a> for &'l T
 }
 
 ///The trait extends the capabilities of the standard Write.
-impl<'l, 'a, T, W> LockWrite<'a> for &'l mut T
-	where 
-	T: LockWrite<'a, LockResult = W>, 
+impl<'l, 'a, T, W> LockWrite<'a> for &'l mut T where T: LockWrite<'a, LockResult = W>, 
 	W: 'a,
 {
 	type LockResult = W;

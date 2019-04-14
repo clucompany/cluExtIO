@@ -63,6 +63,29 @@ impl fmt::Write for EmptyWrite {
 	}
 }
 
+impl<'a> ImmutWrite<'a> for EmptyWrite {
+	#[inline(always)]
+	fn write(&self, _buf: &[u8]) -> Result<usize, io::Error> {
+		Ok( 0 )
+	}
+
+	#[inline(always)]
+	fn flush(&self) -> Result<(), io::Error> {
+		Ok( () )
+	}
+
+	#[inline(always)]
+	fn write_all(&self, _buf: &[u8]) -> Result<(), io::Error> {
+		Ok( () )
+	}
+
+	#[inline(always)]
+	fn write_fmt(&self, _fmt: fmt::Arguments) -> Result<(), io::Error> {
+		Ok( () )
+	}
+}
+
+
 
 impl Clone for EmptyWrite {
 	#[inline(always)]
@@ -71,7 +94,7 @@ impl Clone for EmptyWrite {
 	}
 }
 
-impl<'a> LockWrite<'a> for EmptyWrite {	
+impl<'a> LockWrite<'a> for EmptyWrite {
 	type LockResult = GuardEmptyWrite; 
 
 	#[inline]

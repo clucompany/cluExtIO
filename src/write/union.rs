@@ -1,5 +1,4 @@
 
-
 use crate::LockWrite;
 use std::io::Write;
 use std::io;
@@ -17,9 +16,6 @@ impl<T> ConstUnionWrite for T where Self: Sized {}
 
 
 
-
-
-
 #[derive(Debug, Clone)]
 pub struct UnionWrite<W, W2> {
 	write_left: W, 
@@ -34,6 +30,16 @@ impl<W, W2> UnionWrite<W, W2> {
 			write_right: out2,
 		}
 	}
+	
+	#[inline(always)]
+	pub const fn as_left(&self) -> &W {
+		&self.write_left
+	}
+	
+	#[inline(always)]
+	pub const fn as_right(&self) -> &W2 {
+		&self.write_right
+	}
 }
 
 impl<A, B> From<(A, B)> for UnionWrite<A, B> {
@@ -44,8 +50,7 @@ impl<A, B> From<(A, B)> for UnionWrite<A, B> {
 }
 
 impl<W, W2> Write for UnionWrite<W, W2> where W: io::Write, W2: io::Write {
-
-	fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+	fn write(&mut self, buf: &[u8]) -> Result<usize, io::Error> {
 		let e = self.write_left.write(buf);
 		let e2 = self.write_right.write(buf);
 		
@@ -61,31 +66,31 @@ impl<W, W2> Write for UnionWrite<W, W2> where W: io::Write, W2: io::Write {
 		}
 	}
 
-	fn flush(&mut self) -> io::Result<()> {
+	fn flush(&mut self) -> Result<(), io::Error> {
 		let e = self.write_left.flush();
 		let e2 = self.write_right.flush();
 
-		if let Err(ref _a) = e {
+		if e.is_err() {
 			return e;
 		}
 		e2
 	}
 
-	fn write_all(&mut self, buf: &[u8]) -> io::Result<()> {
+	fn write_all(&mut self, buf: &[u8]) -> Result<(), io::Error> {
 		let e = self.write_left.write_all(buf);
 		let e2 = self.write_right.write_all(buf);
 
-		if let Err(ref _a) = e {
+		if e.is_err() {
 			return e;
 		}
 		e2
 	}
 
-	fn write_fmt(&mut self, fmt: fmt::Arguments) -> io::Result<()> {
+	fn write_fmt(&mut self, fmt: fmt::Arguments) -> Result<(), io::Error> {
 		let e = self.write_left.write_fmt(fmt);
 		let e2 = self.write_right.write_fmt(fmt);
 
-		if let Err(ref _a) = e {
+		if e.is_err() {
 			return e;
 		}
 		e2
@@ -95,11 +100,11 @@ impl<W, W2> Write for UnionWrite<W, W2> where W: io::Write, W2: io::Write {
 
 
 impl<W, W2> fmt::Write for UnionWrite<W, W2> where W: fmt::Write, W2: fmt::Write {
-	fn write_fmt(self: &mut Self, args: fmt::Arguments) -> Result<(), fmt::Error> {
+	fn write_fmt(&mut self, args: fmt::Arguments) -> Result<(), fmt::Error> {
 		let e = self.write_left.write_fmt(args);
 		let e2 = self.write_right.write_fmt(args);
 
-		if let Err(ref _a) = e {
+		if e.is_err() {
 			return e;
 		}
 		e2
@@ -109,7 +114,7 @@ impl<W, W2> fmt::Write for UnionWrite<W, W2> where W: fmt::Write, W2: fmt::Write
 		let e = self.write_left.write_char(c);
 		let e2 = self.write_right.write_char(c);
 
-		if let Err(ref _a) = e {
+		if e.is_err() {
 			return e;
 		}
 		e2
@@ -119,7 +124,7 @@ impl<W, W2> fmt::Write for UnionWrite<W, W2> where W: fmt::Write, W2: fmt::Write
 		let e = self.write_left.write_str(s);
 		let e2 = self.write_right.write_str(s);
 
-		if let Err(ref _a) = e {
+		if e.is_err() {
 			return e;
 		}
 		e2
@@ -128,19 +133,12 @@ impl<W, W2> fmt::Write for UnionWrite<W, W2> where W: fmt::Write, W2: fmt::Write
 
 
 
-impl<'a, W, W2> LockWrite<'a> for UnionWrite<W, W2> 
-	where 
-		//W: io::Write + LockWrite<'a>,
-		//W2: io::Write + LockWrite<'a>,
-		W: LockWrite<'a>,
-		W2: LockWrite<'a>,
-		//W::LockResult : io::Write,
-		//W2::LockResult : io::Write,
-{
+
+impl<'a, W, W2> LockWrite<'a> for UnionWrite<W, W2> where W: LockWrite<'a>, W2: LockWrite<'a> {
 	type LockResult = UnionWrite<W::LockResult, W2::LockResult>;
 
 	fn lock(&'a self) -> Self::LockResult {
-		UnionWrite::new(self.write_left.lock(), self.write_right.lock())
+		Self::LockResult::new(self.write_left.lock(), self.write_right.lock())
 	}
 }
 

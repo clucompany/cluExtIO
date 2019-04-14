@@ -20,12 +20,21 @@ impl<T, A> DropWriteArray<T, A> where T: io::Write, A: AsRef<[u8]> {
 	}
 }
 
+impl<T, A> AsRef<[u8]> for DropWriteArray<T, A> where T: io::Write, A: AsRef<[u8]> {
+	#[inline(always)]
+	fn as_ref(&self) -> &[u8] {
+		self.array.as_ref()
+	}
+}
+
+
 impl<T, A> From<(T, A)> for DropWriteArray<T, A> where T: io::Write, A: AsRef<[u8]> {
 	#[inline(always)]
 	fn from((t, a): (T, A)) -> Self {
 		Self::new(t, a)
 	}
 }
+
 
 impl<T, A> Deref for DropWriteArray<T, A> where T: io::Write, A: AsRef<[u8]> {
 	type Target = T;

@@ -1,4 +1,5 @@
 
+use crate::write::generic::WriteStr;
 use crate::LockWrite;
 use crate::write::generic::WriteFlush;
 use std::ops::DerefMut;
@@ -6,6 +7,8 @@ use std::ops::Deref;
 use std::marker::PhantomData;
 use std::io;
 use std::fmt;
+
+pub type FlushIOWrite = DropWriteFlush<io::Write, io::Error>;
 
 #[derive(Debug)]
 pub struct DropWriteFlush<T, E> where T: WriteFlush<Err = E> {
@@ -46,11 +49,21 @@ impl<T, E> DerefMut for DropWriteFlush<T, E> where T: WriteFlush<Err = E> {
 	}
 }
 
+/*
+impl<T, E> WriteFlush for DropWriteFlush<T, E> where T: WriteFlush<Err = E> {
+	type Err = E;
+	
+	#[inline(always)]
+	fn flush(&mut self) -> Result<(), Self::Err> {
+		self.write.flush()	
+	}
+}*/
+
 
 impl<T, E> io::Write for DropWriteFlush<T, E> where T: WriteFlush<Err = E> + io::Write {
 	#[inline(always)]
 	fn write(&mut self, buf: &[u8]) -> Result<usize, io::Error> {
-		self.write.write(buf)	
+		self.write.write(buf)
 	}
 	
 	#[inline(always)]
@@ -70,7 +83,50 @@ impl<T, E> io::Write for DropWriteFlush<T, E> where T: WriteFlush<Err = E> + io:
 }
 
 
-impl<'a, T> LockWrite<'a> for DropWriteFlush<T, io::Error> where T: LockWrite<'a> + WriteFlush<Err = io::Error> + io::Write {
+impl<T, E> fmt::Write for DropWriteFlush<T, E> where T: WriteFlush<Err = E> + fmt::Write {
+	#[inline(always)]
+	fn write_str(&mut self, s: &str) -> Result<(), fmt::Error> {
+		self.write.write_str(s)
+	}
+	
+	#[inline(always)]
+	fn write_char(&mut self, c: char) -> Result<(), fmt::Error> {
+		self.write.write_char(c)
+	}
+	
+	#[inline(always)]
+	fn write_fmt(self: &mut Self, args: fmt::Arguments) -> Result<(), fmt::Error> {
+		self.write.write_fmt(args)
+	}
+}
+
+impl<'a, T, OK, E> WriteStr for DropWriteFlush<T, E> where T: WriteFlush<Err = E> + WriteStr<Ok = OK, Err = E> {
+	type Ok = OK;
+	type Err = E;
+	
+	#[inline(always)]
+	fn write_str(&mut self, s: &str) -> Result<Self::Ok, Self::Err> {
+		self.write.write_str(s)
+	}
+	
+	#[inline(always)]
+	fn write_str_array<'l>(&mut self, arr: &'l [&str]) -> Result<(), Self::Err> {
+		self.write.write_str_array(arr)
+	}
+	
+	#[inline(always)]
+	fn write_str_lenarray<'l>(&mut self, all_size: usize, arr: &'l [&str]) -> Result<(), Self::Err> {
+		self.write.write_str_lenarray(all_size, arr)
+	}
+}
+
+
+
+
+
+impl<'a, T> LockWrite<'a> for DropWriteFlush<T, io::Error> 
+	where T: LockWrite<'a> + WriteFlush<Err = io::Error> + io::Write {
+	
 	type LockResult = T::LockResult;
 	
 	#[inline(always)]
