@@ -3,15 +3,13 @@ pub mod generic;
 pub mod phantom;
 
 mod mutex;
-pub use self::mutex::*;
-
-
 mod immut;
-pub use self::immut::*;
-
 mod lock;
-pub use self::lock::*;
-
 mod union;
-pub use self::union::*;
+mod flush_fn;
 
+pub use self::mutex::*;
+pub use self::immut::*;
+pub use self::lock::*;
+pub use self::union::*;
+pub use self::flush_fn::*;

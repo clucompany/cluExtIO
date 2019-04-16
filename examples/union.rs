@@ -3,11 +3,11 @@
 extern crate cluExtIO;
 
 use cluExtIO::ConstUnionWrite;
-use std::io::Error;
+use std::io;
 use std::io::Write;
 use std::fs::File;
 
-pub fn main() -> Result<(), Error> {
+pub fn main() -> Result<(), io::Error> {
 
 	let file1 = File::create("/tmp/1.out")?;
 	//file1 - `Write trait`
@@ -22,10 +22,10 @@ pub fn main() -> Result<(), Error> {
 	my_function(write)
 }
 
-fn my_function<W: Write>(mut w: W) -> Result<(), Error> {
-	w.write_fmt(format_args!("#@{} {}\n", 1, "Test"))?;
-	w.write_fmt(format_args!("#@{} {}\n", 2, "MyString"))?;
+fn my_function<W: Write>(mut w: W) -> Result<(), io::Error> {
+	write!(w, "#@{} {}\n", 1, "Test")?;
+	write!(w, "#@{} {}\n", 2, "MyString")?;
 	
-	w.write_fmt(format_args!("#@{} {}\n", 3, "MyString"))
+	write!(w, "#@{} {}\n", 3, "MyString")
 }
 

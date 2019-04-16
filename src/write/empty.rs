@@ -10,9 +10,19 @@ pub type GuardEmptyWrite = EmptyWrite;
 pub struct EmptyWrite;
 
 impl EmptyWrite {
-	#[inline(always)]
+	#[inline]
 	pub const fn new() -> Self {
 		EmptyWrite
+	}
+	
+	#[inline]
+	pub fn as_write(&mut self) -> &mut dyn io::Write {
+		self
+	}
+	
+	#[inline]
+	pub fn as_inwrite(&mut self) -> &mut dyn ImmutWrite {
+		self
 	}
 }
 
@@ -25,61 +35,104 @@ impl From<()> for EmptyWrite {
 
 
 impl io::Write for EmptyWrite {
-	#[inline(always)]
+	#[inline]
 	fn write(&mut self, _buf: &[u8]) -> Result<usize, io::Error> {
 		Ok( 0 )
 	}
 
-	#[inline(always)]
+	#[inline]
 	fn flush(&mut self) -> Result<(), io::Error> {
 		Ok( () )
 	}
 
-	#[inline(always)]
+	#[inline]
 	fn write_all(&mut self, _buf: &[u8]) -> Result<(), io::Error> {
 		Ok( () )
 	}
 
-	#[inline(always)]
+	#[inline]
 	fn write_fmt(&mut self, _fmt: fmt::Arguments) -> Result<(), io::Error> {
 		Ok( () )
 	}
 }
 
+impl io::Write for () {
+	#[inline]
+	fn write(&mut self, _buf: &[u8]) -> Result<usize, io::Error> {
+		Ok( 0 )
+	}
+
+	#[inline]
+	fn flush(&mut self) -> Result<(), io::Error> {
+		Ok( () )
+	}
+
+	#[inline]
+	fn write_all(&mut self, _buf: &[u8]) -> Result<(), io::Error> {
+		Ok( () )
+	}
+
+	#[inline]
+	fn write_fmt(&mut self, _fmt: fmt::Arguments) -> Result<(), io::Error> {
+		Ok( () )
+	}
+}
+
+
+
 impl fmt::Write for EmptyWrite {
-	#[inline(always)]
+	#[inline]
 	fn write_str(&mut self, _s: &str) -> Result<(), fmt::Error> {
 		Ok( () )
 	}
 	
-	#[inline(always)]
+	#[inline]
 	fn write_char(&mut self, _c: char) -> Result<(), fmt::Error> {
 		Ok( () )
 	}
 	
-	#[inline(always)]
+	#[inline]
 	fn write_fmt(&mut self, _args: fmt::Arguments) -> Result<(), fmt::Error> {
 		Ok( () )
 	}
 }
 
+
+impl fmt::Write for () {
+	#[inline]
+	fn write_str(&mut self, _s: &str) -> Result<(), fmt::Error> {
+		Ok( () )
+	}
+	
+	#[inline]
+	fn write_char(&mut self, _c: char) -> Result<(), fmt::Error> {
+		Ok( () )
+	}
+	
+	#[inline]
+	fn write_fmt(&mut self, _args: fmt::Arguments) -> Result<(), fmt::Error> {
+		Ok( () )
+	}
+}
+
+
 impl<'a> ImmutWrite<'a> for EmptyWrite {
-	#[inline(always)]
+	#[inline]
 	fn write(&self, _buf: &[u8]) -> Result<usize, io::Error> {
 		Ok( 0 )
 	}
 
-	#[inline(always)]
+	#[inline]
 	fn flush(&self) -> Result<(), io::Error> {
 		Ok( () )
 	}
 
-	#[inline(always)]
+	#[inline]
 	fn write_all(&self, _buf: &[u8]) -> Result<(), io::Error> {
 		Ok( () )
 	}
 
-	#[inline(always)]
+	#[inline]
 	fn write_fmt(&self, _fmt: fmt::Arguments) -> Result<(), io::Error> {
 		Ok( () )
 	}
@@ -90,7 +143,7 @@ impl<'a> ImmutWrite<'a> for EmptyWrite {
 impl Clone for EmptyWrite {
 	#[inline(always)]
 	fn clone(&self) -> Self {
-		EmptyWrite
+		EmptyWrite::new()
 	}
 }
 

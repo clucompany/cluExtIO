@@ -9,37 +9,45 @@ use std::marker::PhantomData;
 use std::io;
 use std::fmt;
 
-pub type FlushIOWrite = DropFlush<io::Write, io::Error>;
-
 #[derive(Debug)]
-pub struct DropFlush<T, E> where T: WriteFlush<Err = E>, E: Error {
+pub struct FlushFn<T, E, F> where T: WriteFlush<Err = E>, E: Error, F: FnMut(&mut T) {
 	write: T,
 	_p: PhantomData<E>,
+	r#fn: F,
 }
 
-impl<T, E> DropFlush<T, E> where T: WriteFlush<Err = E>, E: Error {
+impl<T, E, F> FlushFn<T, E, F> where T: WriteFlush<Err = E>, E: Error, F: FnMut(&mut T) {
 	#[inline]
-	pub const fn new(write: T) -> Self {
+	pub const fn new(write: T, r#fn: F) -> Self {
 		Self {
 			write: write,
 			_p: PhantomData,
+			r#fn: r#fn,
 		}
 	}
 	
-	#[inline]
 	pub fn flush(&mut self) -> Result<(), E> {
-		self.write.flush()	
+		(self.r#fn)(&mut self.write);
+		self.write.flush()
 	}
 }
 
-impl<T, E> From<T> for DropFlush<T, E> where T: WriteFlush<Err = E>, E: Error {
+/*Conflict
+impl<T, E, F> WriteFlush for FlushFn<T, E, F> where T: WriteFlush<Err = E>, E: Error, F: FnMut(&mut T) {
+	type Err = E;
+	
+	
+}
+*/
+
+impl<T, E, F> From<(T, F)> for FlushFn<T, E, F> where T: WriteFlush<Err = E>, E: Error, F: FnMut(&mut T) {
 	#[inline(always)]
-	fn from(a: T) -> Self {
-		Self::new(a)
+	fn from((t, f): (T, F)) -> Self {
+		Self::new(t, f)
 	}
 }
 
-impl<T, E> Deref for DropFlush<T, E> where T: WriteFlush<Err = E>, E: Error {
+impl<T, E, F> Deref for FlushFn<T, E, F> where T: WriteFlush<Err = E>, E: Error, F: FnMut(&mut T) {
 	type Target = T;
 	
 	#[inline(always)]
@@ -48,7 +56,7 @@ impl<T, E> Deref for DropFlush<T, E> where T: WriteFlush<Err = E>, E: Error {
 	}
 }
 
-impl<T, E> DerefMut for DropFlush<T, E> where T: WriteFlush<Err = E>, E: Error {
+impl<T, E, F> DerefMut for FlushFn<T, E, F> where T: WriteFlush<Err = E>, E: Error, F: FnMut(&mut T) {
 	#[inline(always)]
 	fn deref_mut(&mut self) -> &mut Self::Target {
 		&mut self.write
@@ -56,7 +64,7 @@ impl<T, E> DerefMut for DropFlush<T, E> where T: WriteFlush<Err = E>, E: Error {
 }
 
 /*
-impl<T, E> WriteFlush for DropFlush<T, E> where T: WriteFlush<Err = E> {
+impl<T, E> WriteFlush for FlushFn<T, E> where T: WriteFlush<Err = E> {
 	type Err = E;
 	
 	#[inline(always)]
@@ -66,7 +74,7 @@ impl<T, E> WriteFlush for DropFlush<T, E> where T: WriteFlush<Err = E> {
 }*/
 
 
-impl<T, E> io::Write for DropFlush<T, E> where T: WriteFlush<Err = E> + io::Write, E: Error {
+impl<T, F> io::Write for FlushFn<T, io::Error, F> where T: WriteFlush<Err = io::Error> + io::Write, F: FnMut(&mut T) {
 	#[inline(always)]
 	fn write(&mut self, buf: &[u8]) -> Result<usize, io::Error> {
 		self.write.write(buf)
@@ -84,12 +92,12 @@ impl<T, E> io::Write for DropFlush<T, E> where T: WriteFlush<Err = E> + io::Writ
 	
 	#[inline(always)]
 	fn flush(&mut self) -> Result<(), io::Error> {
-		io::Write::flush(&mut self.write)
+		Self::flush(self)
 	}
 }
 
 
-impl<T, E> fmt::Write for DropFlush<T, E> where T: WriteFlush<Err = E> + fmt::Write, E: Error {
+impl<T, F, E> fmt::Write for FlushFn<T, E, F> where T: WriteFlush<Err = E> + fmt::Write, E: Error, F: FnMut(&mut T), E: Error {
 	#[inline(always)]
 	fn write_str(&mut self, s: &str) -> Result<(), fmt::Error> {
 		self.write.write_str(s)
@@ -106,7 +114,7 @@ impl<T, E> fmt::Write for DropFlush<T, E> where T: WriteFlush<Err = E> + fmt::Wr
 	}
 }
 
-impl<'a, T, OK, E> WriteStr for DropFlush<T, E> where T: WriteFlush<Err = E> + WriteStr<Ok = OK, Err = E>, E: Error {
+impl<'a, T, OK, E, F> WriteStr for FlushFn<T, E, F> where T: WriteFlush<Err = E> + WriteStr<Ok = OK, Err = E>, E: Error, F: FnMut(&mut T) {
 	type Ok = OK;
 	type Err = E;
 	
@@ -130,21 +138,13 @@ impl<'a, T, OK, E> WriteStr for DropFlush<T, E> where T: WriteFlush<Err = E> + W
 
 
 
-impl<'a, T, E> LockWrite<'a> for DropFlush<T, E> 
-	where T: LockWrite<'a> + WriteFlush<Err = E>, E: Error {
+impl<'a, T, E, F> LockWrite<'a> for FlushFn<T, E, F> 
+	where T: LockWrite<'a> + WriteFlush<Err = E>, E: Error, F: FnMut(&mut T) {
 	
 	type LockResult = T::LockResult;
 	
 	#[inline(always)]
 	fn lock(&'a self) -> Self::LockResult {
 		self.write.lock()
-	}
-}
-
-
-
-impl<T, E> Drop for DropFlush<T, E> where T: WriteFlush<Err = E>, E: Error {
-	fn drop(&mut self) {
-		let _e = self.write.flush();
 	}
 }

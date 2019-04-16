@@ -12,7 +12,7 @@ pub trait LockWrite<'a> {
 	fn lock(&'a self) -> Self::LockResult;
 
 	///Alternative method of blocking the output stream using the closure.
-	#[inline(always)]
+	#[inline]
 	fn lock_fn<F: FnOnce(Self::LockResult) -> R, R>(&'a self, f: F) -> R {
 		f(self.lock())
 	}
