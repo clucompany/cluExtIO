@@ -9,7 +9,7 @@ use std::marker::PhantomData;
 use std::io;
 use std::fmt;
 
-pub type FlushIOWrite = DropFlush<io::Write, io::Error>;
+pub type FlushIOWrite = DropFlush<dyn io::Write, io::Error>;
 
 #[derive(Debug)]
 pub struct DropFlush<T, E> where T: WriteFlush<Err = E>, E: Error {

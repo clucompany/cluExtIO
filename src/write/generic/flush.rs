@@ -2,7 +2,7 @@
 use std::error::Error;
 use std::io;
 
-pub type WriteFlushDefault = WriteFlush<Err = io::Error>;
+pub type WriteFlushDefault = dyn WriteFlush<Err = io::Error>;
 
 pub trait WriteFlush {
 	type Err: Error;

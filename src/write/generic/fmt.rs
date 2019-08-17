@@ -9,14 +9,14 @@ pub trait WriteFmt<E> {
 	fn write_fmt(&mut self, fmt: Arguments) -> Result<(), E>;
 }
 
-impl<'a, E> WriteFmt<E> for &'a mut WriteFmt<E> {
+impl<'a, E> WriteFmt<E> for &'a mut dyn WriteFmt<E> {
 	#[inline(always)]
 	fn write_fmt(&mut self, fmt: Arguments) -> Result<(), E> {
 		WriteFmt::write_fmt(*self, fmt)
 	}
 }
 
-impl<E> WriteFmt<E> for Box<WriteFmt<E>> {
+impl<E> WriteFmt<E> for Box<dyn WriteFmt<E>> {
 	#[inline(always)]
 	fn write_fmt(&mut self, fmt: Arguments) -> Result<(), E> {
 		(**self).write_fmt(fmt)
